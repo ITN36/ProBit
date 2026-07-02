@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="es" style="">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Probit | Un paso a la vez es suficiente</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 101, 80, 0.08);
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        /* Custom thin loader animation for ADHD-friendly feedback */
+        .linear-loader {
+            height: 4px;
+            width: 100%;
+            background: #efeded;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .linear-loader-inner {
+            position: absolute;
+            height: 100%;
+            background: #476550;
+            animation: loading 2s infinite ease-in-out;
+        }
+
+        @keyframes loading {
+            0% {
+                left: -40%;
+                width: 40%;
+            }
+
+            100% {
+                left: 100%;
+                width: 40%;
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e6e2d7",
+                        "surface-container-high": "#eae8e7",
+                        "on-primary-container": "#173422",
+                        "tertiary-fixed-dim": "#cac6bc",
+                        "surface-variant": "#e4e2e2",
+                        "secondary": "#4d6171",
+                        "on-surface-variant": "#424843",
+                        "on-secondary-fixed": "#081d2c",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "surface-dim": "#dbd9d9",
+                        "secondary-fixed-dim": "#b4c9dc",
+                        "on-tertiary-fixed": "#1c1c15",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1b1c1c",
+                        "surface-container-low": "#f5f3f3",
+                        "secondary-fixed": "#d0e5f9",
+                        "primary": "#476550",
+                        "tertiary-container": "#98958b",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#304d39",
+                        "tertiary": "#605e56",
+                        "on-secondary-container": "#536777",
+                        "surface-container": "#efeded",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#d0e5f9",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1b1c1c",
+                        "primary-container": "#7d9d85",
+                        "outline-variant": "#c2c8c1",
+                        "on-tertiary-fixed-variant": "#48473f",
+                        "background": "#fbf9f8",
+                        "inverse-primary": "#adcfb5",
+                        "inverse-on-surface": "#f2f0f0",
+                        "surface-tint": "#476550",
+                        "surface-container-highest": "#e4e2e2",
+                        "surface-bright": "#fbf9f8",
+                        "primary-fixed-dim": "#adcfb5",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#354959",
+                        "outline": "#727972",
+                        "on-tertiary-container": "#2f2e27",
+                        "on-primary-fixed": "#032110",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#c9ebd0",
+                        "surface": "#fbf9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "24px",
+                        "max-width": "1120px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "stack-lg": "48px",
+                        "container-padding": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["26px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background text-on-surface">
+    <!-- Top Navigation Shell -->
+    <nav class="w-full top-0 sticky z-50 bg-background/80 backdrop-blur-sm">
+        <div class="flex justify-between items-center max-w-max-width mx-auto px-container-padding h-20">
+            <div class="text-headline-md font-headline-md font-bold text-primary">vvvProbit</div>
+            <div class="hidden md:flex items-center gap-stack-md">
+                <a class="text-on-surface-variant font-label-md hover:text-primary transition-colors duration-200"
+                    href="#filosofia">Filosofía</a>
+                <a class="text-on-surface-variant font-label-md hover:text-primary transition-colors duration-200"
+                    href="#energia">Energía</a>
+                <a class="text-on-surface-variant font-label-md hover:text-primary transition-colors duration-200"
+                    href="#temporizador">Temporizador</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="text-label-md font-label-md px-4 py-2 text-primary hover:opacity-80 transition-opacity">Iniciar
+                    sesión</button>
+                <button
+                    class="text-label-md font-label-md px-6 py-2.5 bg-primary text-on-primary rounded-full hover:shadow-md transition-all">Registrarse</button>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden pt-stack-lg pb-32">
+        <div class="max-w-max-width mx-auto px-container-padding text-center relative z-10">
+            <span
+                class="inline-block px-4 py-1.5 mb-6 text-label-sm font-label-sm bg-primary-fixed text-on-primary-fixed-variant rounded-full">Progreso
+                de bits</span>
+            <h1
+                class="font-headline-lg text-headline-lg md:text-[56px] leading-tight text-on-surface mb-6 max-w-3xl mx-auto">
+                Un paso a la vez es suficiente.
+            </h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-lg max-w-2xl mx-auto">
+                Diseñamos Probit para mentes que funcionan diferente. Gestiona tu energía y tu enfoque mediante pequeñas
+                unidades de progreso, reduciendo la carga cognitiva y el estrés diario.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button
+                    class="px-8 py-4 bg-primary text-on-primary rounded-full font-headline-md text-body-lg hover:scale-[1.02] transition-transform shadow-sm">Comenzar
+                    gratis</button>
+                <button
+                    class="px-8 py-4 border border-outline text-on-surface-variant rounded-full font-headline-md text-body-lg hover:bg-surface-container transition-colors">Ver
+                    demo interactiva</button>
+            </div>
+        </div>
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 -z-0 opacity-20 pointer-events-none">
+
+        </div>
+    </header>
+    <main class="space-y-stack-lg pb-stack-lg">
+        <!-- Narrative Flow: Dashboard (Bento Style) -->
+        <section class="max-w-max-width mx-auto px-container-padding" id="filosofia">
+            <div class="mb-stack-md">
+                <h2 class="font-headline-md text-headline-md text-on-surface">Serene Focus Dashboard</h2>
+                <p class="text-on-surface-variant font-body-md">Un entorno diseñado para la regulación emocional.</p>
+            </div>
+            <div class="bento-grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Main Card -->
+                <div
+                    class="md:col-span-8 bg-surface-container-lowest rounded-xl p-8 border border-outline-variant flex flex-col justify-between overflow-hidden relative">
+                    <div>
+                        <span class="material-symbols-outlined text-primary text-4xl mb-4">dashboard</span>
+                        <h3 class="text-headline-md font-headline-md mb-2">Vista Unificada</h3>
+                        <p class="text-body-md text-on-surface-variant max-w-md">Eliminamos las distracciones visuales.
+                            Solo lo que necesitas ver hoy, filtrado por tu estado mental actual.</p>
+                    </div>
+                    <div class="mt-8 rounded-lg overflow-hidden border border-outline-variant shadow-sm bg-white">
+                        <div class="h-10 bg-surface-container flex items-center px-4 gap-2">
+                            <div class="w-3 h-3 rounded-full bg-error/20"></div>
+                            <div class="w-3 h-3 rounded-full bg-primary/20"></div>
+                            <div class="w-3 h-3 rounded-full bg-secondary/20"></div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="h-12 bg-surface-container-low rounded flex items-center px-4 gap-4">
+                                <div class="w-6 h-6 rounded border-2 border-primary"></div>
+                                <div class="h-2 w-32 bg-outline-variant rounded"></div>
+                            </div>
+                            <div class="h-12 bg-surface-container-low rounded flex items-center px-4 gap-4">
+                                <div class="w-6 h-6 rounded border-2 border-outline"></div>
+                                <div class="h-2 w-48 bg-outline-variant rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Side Brain Dump Card -->
+                <div class="md:col-span-4 bg-secondary-container rounded-xl p-8 flex flex-col justify-between text-on-secondary-container"
+                    id="brain-dump">
+                    <div>
+                        <span class="material-symbols-outlined text-3xl mb-4">psychology</span>
+                        <h3 class="text-headline-md font-headline-md mb-2">Libera tu mente</h3>
+                        <p class="text-body-md opacity-80">El 'Brain Dump' es tu espacio seguro para descargar ideas sin
+                            presión de organización inmediata.</p>
+                    </div>
+                    <div class="mt-stack-md bg-white/40 p-4 rounded-lg italic text-label-md">
+                        "Recordar comprar café..."
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Pomodoro & Focus Section -->
+        <section class="max-w-max-width mx-auto px-container-padding py-12" id="temporizador">
+            <div class="flex flex-col md:flex-row gap-stack-lg items-center">
+                <div class="flex-1 space-y-6">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary">timer</span>
+                    </div>
+                    <h2 class="font-headline-md text-headline-md text-on-surface">Enfoque sin distracciones</h2>
+                    <p class="font-body-md text-on-surface-variant">Nuestro temporizador utiliza la técnica Pomodoro
+                        (25/5/15) adaptada para reducir la ansiedad. Un diseño circular minimalista que te ayuda a
+                        visualizar el tiempo de enfoque sin la presión de una cuenta regresiva agresiva.</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span class="text-body-md font-body-md">Ciclos de enfoque configurables</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span class="text-body-md font-body-md">Alertas sonoras de baja frecuencia (Lofi)</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex-1 w-full">
+                    <div class="glass-card p-12 rounded-3xl text-center space-y-8 relative overflow-hidden">
+                        <div class="relative flex items-center justify-center mb-8 timer-container">
+                            <div class="absolute inset-0 w-full h-full rounded-full border-2 border-primary/10"></div>
+                            <div
+                                class="w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-white shadow-sm border border-surface-container flex flex-col items-center justify-center relative z-10">
+                                <div class="text-6xl sm:text-7xl font-bold text-on-surface tracking-tighter">25:00</div>
+                                <p class="text-label-md text-on-surface-variant mt-2 opacity-80">Tiempo de Enfoque</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-4"><button
+                                class="w-12 h-12 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/50 flex items-center justify-center hover:bg-surface-container transition-colors"><span
+                                    class="material-symbols-outlined">restart_alt</span></button><button
+                                class="w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:bg-primary/90 transition-transform hover:scale-105"><span
+                                    class="material-symbols-outlined text-[32px]">play_arrow</span></button><button
+                                class="w-12 h-12 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/50 flex items-center justify-center hover:bg-surface-container transition-colors"><span
+                                    class="material-symbols-outlined">skip_next</span></button></div>
+                        <div class="flex justify-center bg-surface-container-high rounded-full p-1 mt-8"><button
+                                class="px-4 py-1.5 rounded-full text-label-sm bg-white text-primary shadow-sm">Pomodoro</button><button
+                                class="px-4 py-1.5 rounded-full text-label-sm text-on-surface-variant hover:text-primary">Descanso
+                                Corto</button><button
+                                class="px-4 py-1.5 rounded-full text-label-sm text-on-surface-variant hover:text-primary hidden sm:block">Descanso
+                                Largo</button></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Energy Management Section -->
+        <section class="bg-surface-container-low py-24" id="energia">
+            <div class="max-w-max-width mx-auto px-container-padding">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <h2 class="font-headline-md text-headline-md mb-4">Gestiona tu energía, no solo tu tiempo</h2>
+                    <p class="font-body-md text-on-surface-variant">¿Cómo te sientes ahora mismo? Filtra tus pendientes
+                        basándote en tu capacidad cognitiva actual para evitar el burnout.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- High Energy -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant hover:border-primary/40 transition-colors group">
+                        <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center mb-6">
+                            <span class="material-symbols-outlined text-orange-600">bolt</span>
+                        </div>
+                        <h4 class="font-headline-md text-headline-md mb-2">Alta Energía</h4>
+                        <p class="font-body-md text-on-surface-variant mb-6">Para esos momentos de hiperenfoque. Tareas
+                            complejas y creativas.</p>
+                        <div class="space-y-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div class="p-3 bg-surface-container rounded-lg text-label-md">Redactar propuesta técnica
+                            </div>
+                            <div class="p-3 bg-surface-container rounded-lg text-label-md">Reunión de estrategia</div>
+                        </div>
+                    </div>
+                    <!-- Medium Energy -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant hover:border-primary/40 transition-colors group">
+                        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mb-6">
+                            <span class="material-symbols-outlined text-blue-600">waves</span>
+                        </div>
+                        <h4 class="font-headline-md text-headline-md mb-2">Energía Media</h4>
+                        <p class="font-body-md text-on-surface-variant mb-6">Mantenimiento y rutinas. Tareas que
+                            requieren atención pero no esfuerzo extremo.</p>
+                        <div class="space-y-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div class="p-3 bg-surface-container rounded-lg text-label-md">Responder correos</div>
+                            <div class="p-3 bg-surface-container rounded-lg text-label-md">Actualizar base de datos
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Low Energy -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant hover:border-primary/40 transition-colors group">
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                            <span class="material-symbols-outlined text-primary">eco</span>
+                        </div>
+                        <h4 class="font-headline-md text-headline-md mb-2">Baja Energía</h4>
+                        <p class="font-body-md text-on-surface-variant mb-6">Tareas administrativas o simples que puedes
+                            completar sin estrés.</p>
+                        <div class="space-y-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div class="p-3 bg-surface-container rounded-lg text-label-md">Organizar descargas</div>
+                            <div class="p-3 bg-surface-container rounded-lg text-label-md">Revisar facturas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Progress Charts Section -->
+        <section class="max-w-max-width mx-auto px-container-padding py-24">
+            <div class="flex flex-col md:flex-row-reverse gap-stack-lg items-center">
+                <div class="flex-1 space-y-6">
+                    <h2 class="font-headline-md text-headline-md">Visualiza tu constancia</h2>
+                    <p class="font-body-md text-on-surface-variant">
+                        No se trata de medir la productividad, sino de conocerte mejor. Observa tus picos de energía y
+                        tus patrones de descanso a través de gráficas limpias que celebran cada bit de progreso.
+                    </p>
+                    <div class="flex gap-4">
+                        <div class="text-center">
+                            <div class="text-headline-md font-bold text-primary">84%</div>
+                            <div class="text-label-sm text-on-surface-variant">Consistencia</div>
+                        </div>
+                        <div class="w-px h-12 bg-outline-variant"></div>
+                        <div class="text-center">
+                            <div class="text-headline-md font-bold text-primary">12</div>
+                            <div class="text-label-sm text-on-surface-variant">Racha (bits)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 w-full bg-surface-container p-8 rounded-2xl relative overflow-hidden">
+                    <!-- Placeholder for abstract chart representation -->
+                    <div class="flex items-end justify-between h-48 gap-2">
+                        <div class="w-full bg-primary/20 rounded-t-lg h-[40%] transition-all hover:h-[45%]"></div>
+                        <div class="w-full bg-primary/40 rounded-t-lg h-[60%] transition-all hover:h-[65%]"></div>
+                        <div class="w-full bg-primary/30 rounded-t-lg h-[30%] transition-all hover:h-[35%]"></div>
+                        <div class="w-full bg-primary rounded-t-lg h-[80%] transition-all hover:h-[85%]"></div>
+                        <div class="w-full bg-primary/50 rounded-t-lg h-[55%] transition-all hover:h-[60%]"></div>
+                        <div class="w-full bg-primary/20 rounded-t-lg h-[40%] transition-all hover:h-[45%]"></div>
+                        <div class="w-full bg-primary/60 rounded-t-lg h-[70%] transition-all hover:h-[75%]"></div>
+                    </div>
+                    <div class="mt-4 flex justify-between text-label-sm text-on-surface-variant">
+                        <span class="">Lun</span><span class="">Mar</span><span class="">Mié</span><span
+                            class="">Jue</span><span class="">Vie</span><span class="">Sáb</span><span
+                            class="">Dom</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Philosophy Section -->
+        <section class="bg-primary text-on-primary py-32 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+
+            </div>
+            <div class="max-w-max-width mx-auto px-container-padding text-center relative z-10">
+                <blockquote class="font-headline-lg italic mb-8 max-w-3xl mx-auto">
+                    "La parálisis por análisis se cura dividiendo lo inmenso en bits. No busques terminarlo todo, busca
+                    empezar un solo bit."
+                </blockquote>
+                <p class="font-label-md uppercase tracking-widest opacity-80">— Filosofía Probit</p>
+            </div>
+        </section>
+    </main>
+    <!-- Footer Shell -->
+    <footer class="w-full mt-stack-lg bg-surface-container-low">
+        <div
+            class="flex flex-col md:flex-row justify-between items-center max-w-max-width mx-auto px-container-padding py-stack-md">
+            <div class="mb-4 md:mb-0">
+                <span class="text-label-md font-label-md font-bold text-primary">Probit</span>
+                <p class="text-label-sm text-on-surface-variant mt-1">© 2024 Probit. Un paso a la vez es suficiente.</p>
+            </div>
+            <div class="flex gap-stack-md">
+                <a class="text-on-surface-variant font-label-sm hover:underline decoration-primary"
+                    href="#">Privacidad</a>
+                <a class="text-on-surface-variant font-label-sm hover:underline decoration-primary"
+                    href="#">Términos</a>
+                <a class="text-on-surface-variant font-label-sm hover:underline decoration-primary"
+                    href="#">Contacto</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Smooth scroll implementation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Hover effect for interactive elements
+        const cards = document.querySelectorAll('.bg-surface-container-lowest');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+                card.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
