@@ -19,3 +19,18 @@ cards.forEach(card => {
         card.style.transform = 'translateY(0px)';
     });
 });
+
+// Password visibility toggle logic
+const togglePassword = document.querySelector('#togglePassword');
+const password = document.querySelector('#password');
+const togglePasswordIcon = document.querySelector('#togglePasswordIcon');
+
+if (togglePassword && password && togglePasswordIcon) {
+    togglePassword.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // Toggle the icon
+        togglePasswordIcon.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+    });
+}

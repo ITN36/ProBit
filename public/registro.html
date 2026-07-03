@@ -49,24 +49,31 @@
                     <label class="font-label-md text-label-md text-on-surface" for="name">Nombre completo</label>
                     <input
                         class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
-                        id="name" name="name" placeholder="Ej. Ana García" type="text">
+                        id="name" name="name" placeholder="Ej. Ana García" type="text" required>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="font-label-md text-label-md text-on-surface" for="email">Correo electrónico</label>
                     <input
                         class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
-                        id="email" name="email" placeholder="tu@correo.com" type="email">
+                        id="email" name="email" placeholder="tu@correo.com" type="email" required>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="font-label-md text-label-md text-on-surface" for="password">Contraseña</label>
-                    <input
-                        class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
-                        id="password" name="password" placeholder="Mínimo 8 caracteres" type="password">
+                    <div class="relative">
+                        <input
+                            class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
+                            id="password" name="password" placeholder="Mínimo 8 caracteres" type="password" required
+                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
+                            title="La contraseña debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.">
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none">
+                            <span class="material-symbols-outlined" id="togglePasswordIcon">visibility_off</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="pt-stack-sm">
                     <button
                         class="w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-3 px-4 hover:bg-on-primary-container transition-colors active:scale-[0.98]"
-                        type="button">
+                        type="submit">
                         Crear cuenta
                     </button>
                 </div>
