@@ -44,7 +44,7 @@
                 <p class="font-body-md text-body-md text-on-surface-variant">Empieza tu camino hacia un enfoque sereno.
                 </p>
             </div>
-            <form class="space-y-stack-sm mb-stack-md">
+            <form id="registroForm" class="space-y-stack-sm mb-stack-md">
                 <div class="flex flex-col gap-1">
                     <label class="font-label-md text-label-md text-on-surface" for="name">Nombre completo</label>
                     <input
@@ -65,7 +65,8 @@
                             id="password" name="password" placeholder="Mínimo 8 caracteres" type="password" required
                             pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
                             title="La contraseña debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.">
-                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none">
+                        <button type="button" id="togglePassword"
+                            class="absolute inset-y-0 right-0 flex items-center pr-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none">
                             <span class="material-symbols-outlined" id="togglePasswordIcon">visibility_off</span>
                         </button>
                     </div>
@@ -118,7 +119,7 @@
     </main>
 
 
-    <script src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 
 </html>
