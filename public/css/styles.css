@@ -48,3 +48,61 @@ body {
         width: 40%;
     }
 }
+
+/* Custom Utilities for Serene Focus */
+.focus-glow:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 2px #476550;
+    /* Primary sage green */
+    border-color: transparent;
+}
+
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Custom Checkbox Styling for satisfying interaction */
+.probit-checkbox {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #c2c8c1;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.probit-checkbox:checked {
+    background-color: #476550;
+    border-color: #476550;
+}
+
+.probit-checkbox:checked::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+.probit-checkbox:focus-visible {
+    box-shadow: 0 0 0 2px #fbf9f8, 0 0 0 4px #adcfb5;
+}
+
+/* Card Hover Effects */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+}
