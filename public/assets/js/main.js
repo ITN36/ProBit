@@ -318,3 +318,31 @@ if (displayEl) {
     // Initialize
     updateDisplay();
 }
+
+// --- CÓDIGO PARA TAREAS ---
+const taskCheckboxes = document.querySelectorAll('.task-checkbox');
+if (taskCheckboxes.length > 0) {
+    taskCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const checkIcon = this.nextElementSibling;
+            if (this.checked) {
+                if (checkIcon) checkIcon.classList.remove('opacity-0');
+                this.parentElement.parentElement.classList.add('opacity-60', 'scale-[0.99]');
+            } else {
+                if (checkIcon) checkIcon.classList.add('opacity-0');
+                this.parentElement.parentElement.classList.remove('opacity-60', 'scale-[0.99]');
+            }
+        });
+    });
+
+    // Input focus animation
+    const taskInput = document.querySelector('input[type="text"]');
+    if (taskInput) {
+        taskInput.addEventListener('focus', () => {
+            taskInput.parentElement.classList.add('scale-[1.01]');
+        });
+        taskInput.addEventListener('blur', () => {
+            taskInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    }
+}
