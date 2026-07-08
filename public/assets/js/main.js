@@ -214,3 +214,107 @@ if (googleBtns.length > 0) {
         });
     });
 }
+
+// --- CÓDIGO PARA EL POMODORO TIMER ---
+const displayEl = document.getElementById('timer-display');
+if (displayEl) {
+    const MODES = {
+        pomodoro: { time: 25 * 60, label: 'Tiempo de Enfoque' },
+        shortBreak: { time: 5 * 60, label: 'Descanso Corto' },
+        longBreak: { time: 15 * 60, label: 'Descanso Largo' }
+    };
+
+    let currentMode = 'pomodoro';
+    let timeLeft = MODES[currentMode].time;
+    let isRunning = false;
+    let timerInterval = null;
+
+    const labelEl = document.getElementById('timer-label');
+    const playPauseBtn = document.getElementById('btn-play-pause');
+    const playPauseIcon = document.getElementById('play-pause-icon');
+    const resetBtn = document.getElementById('btn-reset');
+    const timerContainer = document.querySelector('.timer-container');
+    const modeButtons = document.querySelectorAll('#timer-modes button');
+
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function updateDisplay() {
+        displayEl.textContent = formatTime(timeLeft);
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        timeLeft = MODES[mode].time;
+        labelEl.textContent = MODES[mode].label;
+        updateDisplay();
+        pauseTimer();
+
+        // Update mode buttons styling
+        modeButtons.forEach(btn => {
+            if (btn.dataset.mode === mode) {
+                btn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-[0_2px_8px_rgba(0,0,0,0.05)]');
+                btn.classList.remove('text-on-surface-variant');
+            } else {
+                btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-[0_2px_8px_rgba(0,0,0,0.05)]');
+                btn.classList.add('text-on-surface-variant');
+            }
+        });
+    }
+
+    function toggleTimer() {
+        if (isRunning) {
+            pauseTimer();
+        } else {
+            startTimer();
+        }
+    }
+
+    function startTimer() {
+        if (timeLeft === 0) return;
+        isRunning = true;
+        playPauseIcon.textContent = 'pause';
+        timerContainer.classList.add('timer-active');
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+
+            if (timeLeft <= 0) {
+                pauseTimer();
+                // Optional: play sound or notification here
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        isRunning = false;
+        playPauseIcon.textContent = 'play_arrow';
+        timerContainer.classList.remove('timer-active');
+        clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = MODES[currentMode].time;
+        updateDisplay();
+    }
+
+    // Event Listeners
+    if (playPauseBtn) playPauseBtn.addEventListener('click', toggleTimer);
+    if (resetBtn) resetBtn.addEventListener('click', resetTimer);
+
+    if (modeButtons) {
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                setMode(btn.dataset.mode);
+            });
+        });
+    }
+
+    // Initialize
+    updateDisplay();
+}

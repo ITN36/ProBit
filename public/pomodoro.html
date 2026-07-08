@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="h-full" lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Probit - Pomodoro Timer</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script src="assets/js/tailwind.config.js"></script>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="bg-background text-on-background h-full flex antialiased font-body-md overflow-hidden">
+    <!-- SideNavBar (from JSON) -->
+    <nav
+        class="h-full w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest flex flex-col py-stack-lg px-gutter border-r border-outline-variant z-20 hidden md:flex">
+        <!-- Brand Header -->
+        <div class="mb-stack-lg flex items-center gap-stack-sm px-unit">
+            <div
+                class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
+                <span class="material-symbols-outlined filled text-[24px]">timelapse</span>
+            </div>
+            <div>
+                <h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Probit
+                </h1>
+                <p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Focus Environment</p>
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <ul class="flex-1 space-y-unit"><!-- Dashboard (Inactive) -->
+            <li class="">
+                <a class="flex items-center gap-stack-sm px-stack-sm py-3 rounded-lg text-on-surface-variant dark:text-on-secondary-container opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors scale-98 transition-transform duration-200"
+                    href="#">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-label-md text-label-md">Dashboard</span>
+                </a>
+            </li>
+            <!-- Pomodoro (Active) -->
+            <li class="">
+                <a class="flex items-center gap-stack-sm px-stack-sm py-3 rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary bg-primary-container/10"
+                    href="#">
+                    <span class="material-symbols-outlined filled">timer</span>
+                    <span class="font-label-md text-label-md">Pomodoro</span>
+                </a>
+            </li>
+            <!-- Tasks (Inactive) -->
+            <li class="">
+                <a class="flex items-center gap-stack-sm px-stack-sm py-3 rounded-lg text-on-surface-variant dark:text-on-secondary-container opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors scale-98 transition-transform duration-200"
+                    href="#">
+                    <span class="material-symbols-outlined">checklist</span>
+                    <span class="font-label-md text-label-md">Tasks</span>
+                </a>
+            </li>
+            <!-- Graphs (Inactive) -->
+            <li class="">
+                <a class="flex items-center gap-stack-sm px-stack-sm py-3 rounded-lg text-on-surface-variant dark:text-on-secondary-container opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors scale-98 transition-transform duration-200"
+                    href="#">
+                    <span class="material-symbols-outlined">leaderboard</span>
+                    <span class="font-label-md text-label-md">Graphs</span>
+                </a>
+            </li>
+            <!-- Brain Dump (Inactive) -->
+            <li class="">
+                <a class="flex items-center gap-stack-sm px-stack-sm py-3 rounded-lg text-on-surface-variant dark:text-on-secondary-container opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors scale-98 transition-transform duration-200"
+                    href="#">
+                    <span class="material-symbols-outlined">psychology</span>
+                    <span class="font-label-md text-label-md">Brain Dump</span>
+                </a>
+            </li>
+        </ul>
+        <!-- User Profile (Bottom) -->
+    </nav>
+    <!-- Main Content Area (Offset by SideNav on desktop) -->
+    <main class="flex-1 md:ml-64 flex flex-col h-screen overflow-y-auto bg-surface dark:bg-background relative">
+        <!-- TopAppBar (from JSON) -->
+        <header
+            class="flex justify-between items-center w-full h-20 px-container-padding bg-surface dark:bg-background sticky top-0 z-10">
+            <!-- Mobile Menu Toggle (Visible only on mobile) -->
+            <button class="md:hidden text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <!-- Headline Anchor -->
+            <div class="flex-1 flex justify-center md:justify-start pl-0 md:pl-stack-lg">
+                <h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim hidden md:block">
+                    Un paso a la vez es suficiente</h2>
+                <h2
+                    class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim md:hidden">
+                    Probit</h2>
+            </div>
+            <!-- Trailing Actions -->
+            <div class="flex items-center gap-stack-sm">
+                <button
+                    class="p-2 rounded-full text-on-surface-variant dark:text-on-secondary-container hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high transition-colors opacity-80 hover:opacity-100">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button
+                    class="p-2 rounded-full text-on-surface-variant dark:text-on-secondary-container hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high transition-colors opacity-80 hover:opacity-100">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <img class="w-8 h-8 rounded-full object-cover ml-2 border border-outline-variant/30 md:hidden"
+                    data-alt="User profile avatar, minimalist portrait, soft lighting, calm expression."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9BcOG5V3TqGDKCo7FgtNLHpnrdS1GsZC6Uc6nE-_KpAiqC_g1-b40U57S3iX4opaSyMJT2PoeeYBoNYz7M1UAWN3umqsi92tHAe8ZbRsV8nUKId9aJl7-xTYmC_6yQcd7MkMXNqVkPKfdUc1gRLyH73SYGBSjSj56HoWfdDyA3EoixFfWjLgD0HgVEXbl9ly9Q2dR5ZNF79YIGkdyFO9GYDXityId6JGrXAWb-t-wrsl-zUynXO-DqfHYiT-MrRSyAPIAi7Kk6ieX">
+            </div>
+        </header>
+        <!-- Pomodoro Canvas Area -->
+        <div
+            class="flex-1 flex flex-col items-center justify-center p-container-padding max-w-[1120px] mx-auto w-full pb-stack-lg">
+            <!-- Context & Current Task -->
+            <div class="mb-stack-lg w-full max-w-md">
+                <div
+                    class="bg-surface-container-lowest rounded-xl p-stack-md border border-outline-variant/50 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex items-start gap-stack-sm">
+                    <div class="mt-1">
+                        <span class="material-symbols-outlined text-primary-container">radio_button_unchecked</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mb-1">Current
+                            Focus</p>
+                        <h3 class="font-body-lg text-body-lg text-on-surface">Redesign onboarding flow wireframes</h3>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span
+                                class="px-2 py-1 bg-secondary-fixed/30 text-on-secondary-container rounded-DEFAULT font-label-sm text-[10px] uppercase tracking-wider">Design</span>
+                            <span
+                                class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1"><span
+                                    class="material-symbols-outlined text-[14px]">schedule</span> 2 hrs est.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Timer Modes -->
+            <div class="flex bg-surface-container-high rounded-full p-1 mb-stack-lg" id="timer-modes">
+                <button
+                    class="px-6 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-primary shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all"
+                    data-mode="pomodoro">Pomodoro</button>
+                <button
+                    class="px-6 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all"
+                    data-mode="shortBreak">Descanso Corto</button>
+                <button
+                    class="px-6 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all hidden sm:block"
+                    data-mode="longBreak">Descanso Largo</button>
+            </div>
+            <!-- The Timer (Central Focus) -->
+            <div class="relative flex items-center justify-center mb-stack-lg timer-container">
+                <!-- Outer decorative ring -->
+                <div
+                    class="absolute inset-0 w-full h-full rounded-full border-2 border-primary-container/20 timer-ring">
+                </div>
+                <!-- Inner soft container -->
+                <div
+                    class="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-surface-container-lowest shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-surface-container-high flex flex-col items-center justify-center relative z-10">
+                    <div class="font-headline-lg text-headline-lg text-on-surface tracking-tighter text-6xl sm:text-8xl tabular-nums"
+                        id="timer-display">25:00</div>
+                    <p class="font-label-md text-label-md text-on-surface-variant mt-2 opacity-80" id="timer-label">
+                        Tiempo de Enfoque</p>
+                </div>
+            </div>
+            <!-- Controls -->
+            <div class="flex items-center gap-stack-md">
+                <button
+                    class="w-14 h-14 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/50 flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+                    id="btn-reset">
+                    <span class="material-symbols-outlined text-[28px]">restart_alt</span>
+                </button>
+                <button
+                    class="w-20 h-20 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_4px_16px_rgba(71,101,80,0.2)] hover:bg-primary/90 transition-colors transform hover:scale-105 duration-200"
+                    id="btn-play-pause">
+                    <span class="material-symbols-outlined filled text-[36px]" id="play-pause-icon">play_arrow</span>
+                </button>
+                <button
+                    class="w-14 h-14 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/50 flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                    <span class="material-symbols-outlined text-[28px]">skip_next</span>
+                </button>
+            </div>
+        </div>
+    </main>
+    <!-- Mobile Bottom Navigation (Hidden on desktop, replaces SideNav on mobile) -->
+    <nav
+        class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-20 pb-safe">
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-sm text-[10px]">Dashboard</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="#">
+            <span class="material-symbols-outlined filled">timer</span>
+            <span class="font-label-sm text-[10px]">Pomodoro</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+            <span class="material-symbols-outlined">checklist</span>
+            <span class="font-label-sm text-[10px]">Tasks</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <span class="font-label-sm text-[10px]">Graphs</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+            <span class="material-symbols-outlined">psychology</span>
+            <span class="font-label-sm text-[10px]">Brain Dump</span>
+        </a>
+    </nav>
+    <script type="module" src="assets/js/main.js"></script>
+
+
+</body>
+
+</html>
