@@ -22,9 +22,20 @@
     <!-- TopAppBar -->
     <header
         class="w-full top-0 bg-background flex justify-between items-center px-container-padding h-16 max-w-max-width mx-auto">
-        <div class="flex items-center gap-gutter cursor-pointer">
-            <img alt="Probit Logo" class="h-8 w-8 rounded-lg object-contain" src="assets/img/logo.png">
-            <span class="font-headline-md text-headline-md font-semibold text-primary">Probit</span>
+        <div class="flex items-center gap-6">
+            <!-- Botón Volver -->
+            <a href="index.html"
+                class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors p-2 -ml-2 rounded-full"
+                aria-label="Volver al inicio">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="hidden sm:inline font-label-md text-label-md font-medium">Volver</span>
+            </a>
+            
+            <!-- Logo y Marca -->
+            <div class="flex items-center gap-gutter cursor-pointer">
+                <img alt="Probit Logo" class="h-8 w-8 rounded-lg object-contain" src="assets/img/logo.png">
+                <span class="font-headline-md text-headline-md font-semibold text-primary">Probit</span>
+            </div>
         </div>
         <div class="flex items-center gap-unit text-primary">
             <span
@@ -111,7 +122,7 @@
             </div>
             <div class="text-center">
                 <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors"
-                    href="#">
+                    href="inicio-sesion.html">
                     ¿Ya tienes una cuenta? <span class="font-semibold text-primary">Iniciar sesión</span>
                 </a>
             </div>
