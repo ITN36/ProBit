@@ -259,27 +259,7 @@
             </section>
         </div>
     </main>
-    <script>
-        // Simple script to toggle visual strikethrough on tasks when checked to provide immediate visual feedback (satisfying for ADHD context)
-        document.addEventListener('DOMContentLoaded', () => {
-            const checkboxes = document.querySelectorAll('.probit-checkbox');
 
-            checkboxes.forEach(box => {
-                box.addEventListener('change', (e) => {
-                    const labelOrTitle = e.target.nextElementSibling;
-                    if (labelOrTitle) {
-                        if (e.target.checked) {
-                            labelOrTitle.style.opacity = '0.5';
-                            labelOrTitle.style.textDecoration = 'line-through';
-                        } else {
-                            labelOrTitle.style.opacity = '1';
-                            labelOrTitle.style.textDecoration = 'none';
-                        }
-                    }
-                });
-            });
-        });
-    </script>
 
 
 
