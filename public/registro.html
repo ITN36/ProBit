@@ -6,55 +6,43 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Probit - Registro</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
-    <script src="js/tailwind.config.js"></script>
+    <script src="assets/js/tailwind.config.js"></script>
 </head>
 
 <body
-    class="bg-background text-on-background min-h-screen flex flex-col font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
-    <!-- TopAppBar -->
-    <header
-        class="w-full top-0 bg-background flex justify-between items-center px-container-padding h-16 max-w-max-width mx-auto">
-        <div class="flex items-center gap-6">
-            <!-- Botón Volver -->
-            <a href="index.html"
-                class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors p-2 -ml-2 rounded-full"
-                aria-label="Volver al inicio">
-                <span class="material-symbols-outlined">arrow_back</span>
-                <span class="hidden sm:inline font-label-md text-label-md font-medium">Volver</span>
-            </a>
-            
-            <!-- Logo y Marca -->
-            <div class="flex items-center gap-gutter cursor-pointer">
-                <img alt="Probit Logo" class="h-8 w-8 rounded-lg object-contain" src="assets/img/logo.png">
-                <span class="font-headline-md text-headline-md font-semibold text-primary">Probit</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-unit text-primary">
-            <span
-                class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors active:opacity-70"
-                data-icon="help_outline">help_outline</span>
-        </div>
-    </header>
-    <!-- Main Content -->
-    <main class="flex-grow flex items-center justify-center p-container-padding w-full max-w-max-width mx-auto">
+    class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col justify-center items-center p-container-padding relative">
+    
+    <!-- Botón Volver -->
+    <a href="index.html" class="absolute top-4 left-4 md:top-8 md:left-8 flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full" aria-label="Volver al inicio">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="hidden sm:inline font-label-md text-label-md font-medium">Volver</span>
+    </a>
+
+    <!-- Main Content Canvas -->
+    <main class="w-full max-w-[440px] mx-auto">
+        <!-- Register Card -->
         <div
-            class="bg-surface-container-lowest w-full max-w-md rounded-xl p-8 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant/50">
-            <div class="text-center mb-stack-md">
-                <h1
-                    class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-unit">
-                    Crear cuenta</h1>
-                <p class="font-body-md text-body-md text-on-surface-variant">Empieza tu camino hacia un enfoque sereno.
+            class="bg-surface-container-lowest rounded-xl border border-outline-variant p-stack-lg md:p-12 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col items-center text-center">
+            <!-- Logo -->
+            <div
+                class="mb-stack-md w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container-low flex items-center justify-center">
+                <img alt="Probit Logo" class="w-full h-full object-contain p-2" src="assets/img/logo.png" />
+            </div>
+            <!-- Header -->
+            <div class="mb-stack-lg w-full">
+                <h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-surface mb-unit">
+                    Crear cuenta
+                </h1>
+                <p class="text-body-md font-body-md text-on-surface-variant">
+                    Empieza tu camino hacia un enfoque sereno.
                 </p>
             </div>
-            <form id="registroForm" class="space-y-stack-sm mb-stack-md">
+            
+            <!-- Form -->
+            <form id="registroForm" class="w-full flex flex-col text-left space-y-stack-sm mb-stack-md">
                 <div class="flex flex-col gap-1">
                     <label class="font-label-md text-label-md text-on-surface" for="name">Nombre completo</label>
                     <input
@@ -89,7 +77,9 @@
                     </button>
                 </div>
             </form>
-            <div class="relative flex items-center justify-center mb-stack-md">
+
+            <!-- Divider -->
+            <div class="relative flex items-center justify-center mb-stack-md w-full">
                 <div aria-hidden="true" class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-outline-variant"></div>
                 </div>
@@ -97,7 +87,9 @@
                     O continuar con
                 </div>
             </div>
-            <div class="flex flex-col gap-unit mb-stack-md">
+
+            <!-- Social Providers -->
+            <div class="flex flex-col gap-unit w-full">
                 <button id="googleLoginBtn"
                     class="w-full flex items-center justify-center gap-gutter bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md rounded-lg py-3 px-4 hover:bg-surface transition-colors active:scale-[0.98]"
                     type="button">
@@ -117,18 +109,17 @@
                     </svg>
                     Google
                 </button>
-
-
-            </div>
-            <div class="text-center">
-                <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors"
-                    href="inicio-sesion.html">
-                    ¿Ya tienes una cuenta? <span class="font-semibold text-primary">Iniciar sesión</span>
-                </a>
             </div>
         </div>
-    </main>
 
+        <!-- Footer Link -->
+        <div class="mt-stack-md text-center">
+            <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors"
+                href="inicio-sesion.html">
+                ¿Ya tienes una cuenta? <span class="font-semibold text-primary">Iniciar sesión</span>
+            </a>
+        </div>
+    </main>
 
     <script type="module" src="assets/js/main.js"></script>
 </body>
