@@ -18,9 +18,12 @@
 </head>
 
 <body class="bg-background text-on-background antialiased flex overflow-hidden h-screen" data-mode="connect">
+    <!-- Overlay para móvil -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-surface-variant/50 backdrop-blur-sm z-10 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+
     <!-- SideNavBar Component -->
-    <nav
-        class="hidden md:flex flex-col py-stack-lg px-gutter h-screen border-r border-outline-variant bg-surface-container-low dark:bg-surface-container-lowest h-full w-64 fixed left-0 top-0 z-20">
+    <nav id="sidebar"
+        class="flex flex-col py-stack-lg px-gutter border-r border-outline-variant bg-surface-container-low dark:bg-surface-container-lowest h-full w-64 fixed left-0 top-0 z-20 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
         <!-- Brand / Header -->
         <div class="flex items-center gap-3 mb-stack-lg px-4">
             <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
@@ -80,13 +83,19 @@
         <!-- TopAppBar Component -->
         <header
             class="flex justify-between items-center w-full h-20 px-container-padding bg-surface dark:bg-background z-10 sticky top-0">
-            <!-- Headline -->
-            <div>
-                <h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim hidden md:block">
-                    Un paso a la vez es suficiente</h2>
-                <!-- Mobile brand (hidden on desktop since side nav has it) -->
-                <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary md:hidden block">
-                    Probit</h1>
+            <!-- Headline / Menú móvil -->
+            <div class="flex items-center gap-3">
+                <button id="openSidebarBtn" aria-label="Abrir menú"
+                    class="md:hidden text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full -ml-2">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div>
+                    <h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim hidden md:block">
+                        Un paso a la vez es suficiente</h2>
+                    <!-- Mobile brand -->
+                    <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary md:hidden block">
+                        Probit</h1>
+                </div>
             </div>
             <!-- Trailing Actions -->
             <div class="flex items-center gap-4">

@@ -35,6 +35,35 @@ if (togglePassword && password && togglePasswordIcon) {
     });
 }
 
+// Sidebar toggle logic for mobile dashboard
+const openSidebarBtn = document.getElementById('openSidebarBtn');
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+if (openSidebarBtn && sidebar && sidebarOverlay) {
+    function toggleSidebar() {
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        if (isOpen) {
+            // Close
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.remove('opacity-100');
+            sidebarOverlay.classList.add('opacity-0');
+            setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
+        } else {
+            // Open
+            sidebarOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-0');
+                sidebarOverlay.classList.add('opacity-100');
+            }, 10);
+        }
+    }
+
+    openSidebarBtn.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', toggleSidebar);
+}
+
 // --- CÓDIGO PARA REGISTRAR EN FIREBASE ---
 
 // 1. Traemos auth y db desde el archivo firebase.js que acabas de crear
