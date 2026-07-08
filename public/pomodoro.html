@@ -109,7 +109,7 @@
         </header>
         <!-- Pomodoro Canvas Area -->
         <div
-            class="flex-1 flex flex-col items-center justify-center p-container-padding max-w-[1120px] mx-auto w-full pb-stack-lg">
+            class="flex-1 flex flex-col items-center justify-center p-container-padding max-w-[1120px] mx-auto w-full pb-32 md:pb-stack-lg">
             <!-- Context & Current Task -->
             <div class="mb-stack-lg w-full max-w-md">
                 <div
@@ -132,15 +132,15 @@
                 </div>
             </div>
             <!-- Timer Modes -->
-            <div class="flex bg-surface-container-high rounded-full p-1 mb-stack-lg" id="timer-modes">
+            <div class="flex bg-surface-container-high rounded-full p-1 mb-stack-lg overflow-x-auto max-w-[95vw] md:max-w-full no-scrollbar snap-x" id="timer-modes" style="scrollbar-width: none; -ms-overflow-style: none;">
                 <button
-                    class="px-6 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-primary shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all"
+                    class="px-4 sm:px-6 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-primary shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all shrink-0 whitespace-nowrap snap-center"
                     data-mode="pomodoro">Pomodoro</button>
                 <button
-                    class="px-6 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all"
+                    class="px-4 sm:px-6 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all shrink-0 whitespace-nowrap snap-center"
                     data-mode="shortBreak">Descanso Corto</button>
                 <button
-                    class="px-6 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all hidden sm:block"
+                    class="px-4 sm:px-6 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all shrink-0 whitespace-nowrap snap-center"
                     data-mode="longBreak">Descanso Largo</button>
             </div>
             <!-- The Timer (Central Focus) -->
