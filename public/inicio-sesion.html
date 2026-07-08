@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Probit - Iniciar sesión</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Config from Design System -->
+    <script src="js/tailwind.config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body
+    class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col justify-center items-center p-container-padding">
+    <!-- Transactional Screen: Navigation Shell Suppressed -->
+    <!-- Main Content Canvas -->
+    <main class="w-full max-w-[440px] mx-auto">
+        <!-- Login Card -->
+        <div
+            class="bg-surface-container-lowest rounded-xl border border-outline-variant p-stack-lg md:p-12 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col items-center text-center">
+            <!-- Logo -->
+            <div
+                class="mb-stack-md w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container-low flex items-center justify-center">
+                <img alt="Probit Logo" class="w-full h-full object-contain p-2" src="logo.png" />
+            </div>
+            <!-- Header -->
+            <div class="mb-stack-lg w-full">
+                <h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-surface mb-unit">
+                    Bienvenido de nuevo
+                </h1>
+                <p class="text-body-md font-body-md text-on-surface-variant">
+                    Continúa con tu progreso, un bit a la vez.
+                </p>
+            </div>
+            <!-- Form -->
+            <form id="loginForm" class="w-full flex flex-col text-left space-y-stack-md">
+                <!-- Email Field -->
+                <div class="flex flex-col">
+                    <label class="text-label-md font-label-md text-on-surface mb-unit" for="email">
+                        Correo electrónico
+                    </label>
+                    <div class="relative focus-glow rounded-lg transition-all duration-200">
+                        <input
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant/50 appearance-none focus:outline-none focus:ring-0 focus:border-transparent transition-colors"
+                            id="email" name="email" placeholder="tu@correo.com" required="" type="email" />
+                    </div>
+                </div>
+                <!-- Password Field -->
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-unit">
+                        <label class="text-label-md font-label-md text-on-surface" for="password">
+                            Contraseña
+                        </label>
+                        <a class="text-label-sm font-label-sm text-primary hover:text-primary-fixed-dim transition-colors"
+                            href="#">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                    <div class="relative focus-glow rounded-lg transition-all duration-200">
+                        <input
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant/50 appearance-none focus:outline-none focus:ring-0 focus:border-transparent transition-colors"
+                            id="password" name="password" placeholder="••••••••" required="" type="password" />
+                    </div>
+                </div>
+                <!-- Primary Action -->
+                <div class="pt-stack-sm">
+                    <button
+                        class="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary text-label-md font-label-md font-semibold py-4 rounded-lg transition-all duration-200 flex justify-center items-center group"
+                        type="submit">
+                        <span>Iniciar sesión</span>
+                        <span
+                            class="material-symbols-outlined ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-200"
+                            style="font-size: 20px;">
+                            arrow_forward
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- Footer Link -->
+        <div class="mt-stack-md text-center">
+            <p class="text-body-md font-body-md text-on-surface-variant">
+                ¿No tienes una cuenta?
+                <a class="text-primary font-label-md font-semibold hover:underline decoration-2 underline-offset-4 transition-all"
+                    href="registro.html">
+                    Regístrate
+                </a>
+            </p>
+        </div>
+    </main>
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
