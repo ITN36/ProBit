@@ -572,8 +572,9 @@ if (confirmDeleteBtn) {
 
 let allUserTasks = [];
 let currentFilter = 'todas';
+let currentStatusFilter = 'pendientes';
 
-// Configurar Filtros
+// Configurar Filtros de Energía
 const filterBtns = document.querySelectorAll('.filter-btn');
 filterBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -592,15 +593,55 @@ filterBtns.forEach(btn => {
     });
 });
 
+// Configurar Filtros de Estado (Pendientes / Completadas)
+const statusTabs = document.querySelectorAll('.status-tab');
+const emptyStateIcon = document.getElementById('empty-state-icon');
+const emptyStateTitle = document.getElementById('empty-state-title');
+const emptyStateDesc = document.getElementById('empty-state-desc');
+
+statusTabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        statusTabs.forEach(t => {
+            t.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+            t.classList.add('text-on-surface-variant', 'hover:bg-surface');
+        });
+        const clickedTab = e.target.closest('.status-tab');
+        clickedTab.classList.remove('text-on-surface-variant', 'hover:bg-surface');
+        clickedTab.classList.add('bg-white', 'text-primary', 'shadow-sm');
+        
+        currentStatusFilter = clickedTab.dataset.status;
+        renderFilteredTasks();
+    });
+});
+
 function renderFilteredTasks() {
     if (!tasksContainer || !emptyStateContainer) return;
     tasksContainer.innerHTML = '';
     
-    const filteredTasks = currentFilter === 'todas' 
-        ? allUserTasks 
-        : allUserTasks.filter(task => task.energy === currentFilter);
+    // 1. Filtrar por estado
+    let filteredTasks = allUserTasks.filter(task => {
+        if (currentStatusFilter === 'pendientes') return task.completed === false;
+        if (currentStatusFilter === 'completadas') return task.completed === true;
+        return true;
+    });
+
+    // 2. Filtrar por energía
+    if (currentFilter !== 'todas') {
+        filteredTasks = filteredTasks.filter(task => task.energy === currentFilter);
+    }
         
     if (filteredTasks.length === 0) {
+        if (emptyStateTitle && emptyStateDesc && emptyStateIcon) {
+            if (currentStatusFilter === 'pendientes') {
+                emptyStateIcon.textContent = 'task';
+                emptyStateTitle.textContent = '¡Todo al día!';
+                emptyStateDesc.textContent = 'No tienes tareas pendientes. Tómate un respiro o añade una nueva.';
+            } else {
+                emptyStateIcon.textContent = 'done_all';
+                emptyStateTitle.textContent = 'Aún no hay tareas completadas';
+                emptyStateDesc.textContent = 'Cuando marques una tarea como hecha, aparecerá aquí.';
+            }
+        }
         emptyStateContainer.classList.remove('hidden');
     } else {
         emptyStateContainer.classList.add('hidden');

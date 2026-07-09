@@ -139,6 +139,12 @@
             </section>
             <!-- Task List Section -->
             <section class="space-y-6">
+                <!-- Status Tabs -->
+                <div class="flex p-1 bg-surface-container-high rounded-2xl w-full max-w-md mx-auto mb-6" id="status-tabs">
+                    <button id="tab-pendientes" data-status="pendientes" class="status-tab flex-1 py-3 rounded-xl bg-white text-primary font-label-lg shadow-sm text-label-lg transition-all">Pendientes</button>
+                    <button id="tab-completadas" data-status="completadas" class="status-tab flex-1 py-3 rounded-xl text-on-surface-variant font-label-lg text-label-lg hover:bg-surface transition-all">Completadas</button>
+                </div>
+                
                 <!-- Action Bar: Add & Filter -->
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <!-- Add Task Button -->
@@ -165,12 +171,10 @@
                 <!-- Empty State (Se muestra cuando no hay tareas) -->
                 <div id="empty-state-container" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center">
                     <div class="w-32 h-32 mb-6 bg-surface-container rounded-full flex items-center justify-center shadow-inner">
-                        <span class="material-symbols-outlined text-[64px] text-primary opacity-50">task</span>
+                        <span class="material-symbols-outlined text-[64px] text-primary opacity-50" id="empty-state-icon">task</span>
                     </div>
-                    <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">¡Todo al día!</h3>
-                    <p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-8">
-                        No tienes tareas pendientes en este momento. Tómate un respiro o crea una nueva tarea para continuar.
-                    </p>
+                    <h3 id="empty-state-title" class="font-headline-sm text-headline-sm text-on-surface mb-2 font-bold">¡Todo al día!</h3>
+                    <p id="empty-state-desc" class="font-body-lg text-body-lg text-on-surface-variant max-w-sm mb-8">No tienes tareas pendientes. Tómate un respiro o añade una nueva.</p>
                     <button onclick="document.getElementById('open-task-modal-btn').click()" class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-label-md text-label-md hover:bg-secondary-container/80 transition-colors">
                         Agregar mi primera tarea
                     </button>
