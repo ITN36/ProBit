@@ -114,7 +114,7 @@
             </div>
         </header>
         <!-- Dashboard Canvas -->
-        <div class="p-container-padding max-w-[1120px] mx-auto w-full flex flex-col gap-stack-lg pb-stack-lg">
+        <div class="p-container-padding max-w-[1120px] mx-auto w-full flex flex-col gap-stack-lg pb-32 md:pb-stack-lg">
             <!-- Mobile headline (visible only on small screens) -->
             <h2 class="font-headline-md text-headline-md text-primary md:hidden block">Un paso a la vez es suficiente
             </h2>
@@ -268,11 +268,29 @@
             </section>
         </div>
     </main>
-
-
-
-
-
+    <!-- Mobile Bottom Navigation (Hidden on desktop, hides on scroll down) -->
+    <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-40 pb-safe transition-transform duration-300 transform translate-y-0">
+        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="dashboard.html">
+            <span class="material-symbols-outlined filled">dashboard</span>
+            <span class="font-label-sm text-[10px]">Dashboard</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="pomodoro.html">
+            <span class="material-symbols-outlined">timer</span>
+            <span class="font-label-sm text-[10px]">Pomodoro</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="tareas.html">
+            <span class="material-symbols-outlined">checklist</span>
+            <span class="font-label-sm text-[10px]">Tasks</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <span class="font-label-sm text-[10px]">Graphs</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+            <span class="material-symbols-outlined">note_add</span>
+            <span class="font-label-sm text-[10px]">Brain Dump</span>
+        </a>
+    </nav>
     <script type="module" src="assets/js/main.js"></script>
 </body>
 

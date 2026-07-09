@@ -346,3 +346,26 @@ if (taskCheckboxes.length > 0) {
         });
     }
 }
+
+// --- SCROLL HIDDEN BOTTOM NAV ---
+const bottomNav = document.getElementById('mobile-bottom-nav');
+const scrollableMain = document.querySelector('main');
+let lastScrollTop = 0;
+
+if (bottomNav && scrollableMain) {
+    scrollableMain.addEventListener('scroll', () => {
+        let scrollTop = scrollableMain.scrollTop;
+        
+        // Hide on scroll down, show on scroll up. Threshold to avoid jitter.
+        if (Math.abs(scrollTop - lastScrollTop) > 5) {
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                // Downscroll - hide it
+                bottomNav.style.transform = 'translateY(100%)';
+            } else {
+                // Upscroll - show it
+                bottomNav.style.transform = 'translateY(0)';
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
+        }
+    }, { passive: true });
+}

@@ -109,9 +109,9 @@
         </header>
         <!-- Pomodoro Canvas Area -->
         <div
-            class="flex-1 flex flex-col items-center justify-center p-container-padding max-w-[1120px] mx-auto w-full pb-32 md:pb-stack-lg">
+            class="flex-1 flex flex-col items-center justify-start sm:justify-center p-container-padding max-w-[1120px] mx-auto w-full pb-32 md:pb-stack-lg min-h-max">
             <!-- Context & Current Task -->
-            <div class="mb-stack-lg w-full max-w-md">
+            <div class="mb-6 sm:mb-stack-lg w-full max-w-md">
                 <div
                     class="bg-surface-container-lowest rounded-xl p-stack-md border border-outline-variant/50 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex items-start gap-stack-sm">
                     <div class="mt-1">
@@ -132,7 +132,7 @@
                 </div>
             </div>
             <!-- Timer Modes -->
-            <div class="flex bg-surface-container-high rounded-full p-1 mb-stack-lg overflow-x-auto max-w-[95vw] md:max-w-full no-scrollbar snap-x" id="timer-modes" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <div class="flex bg-surface-container-high rounded-full p-1 mb-6 sm:mb-stack-lg overflow-x-auto max-w-[95vw] md:max-w-full no-scrollbar snap-x" id="timer-modes" style="scrollbar-width: none; -ms-overflow-style: none;">
                 <button
                     class="px-4 sm:px-6 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-primary shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all shrink-0 whitespace-nowrap snap-center"
                     data-mode="pomodoro">Pomodoro</button>
@@ -144,14 +144,14 @@
                     data-mode="longBreak">Descanso Largo</button>
             </div>
             <!-- The Timer (Central Focus) -->
-            <div class="relative flex items-center justify-center mb-stack-lg timer-container">
+            <div class="relative flex items-center justify-center mb-8 sm:mb-stack-lg timer-container">
                 <!-- Outer decorative ring -->
                 <div
                     class="absolute inset-0 w-full h-full rounded-full border-2 border-primary-container/20 timer-ring">
                 </div>
                 <!-- Inner soft container -->
                 <div
-                    class="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-surface-container-lowest shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-surface-container-high flex flex-col items-center justify-center relative z-10">
+                    class="w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-surface-container-lowest shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-surface-container-high flex flex-col items-center justify-center relative z-10">
                     <div class="font-headline-lg text-headline-lg text-on-surface tracking-tighter text-6xl sm:text-8xl tabular-nums"
                         id="timer-display">25:00</div>
                     <p class="font-label-md text-label-md text-on-surface-variant mt-2 opacity-80" id="timer-label">
@@ -177,18 +177,17 @@
             </div>
         </div>
     </main>
-    <!-- Mobile Bottom Navigation (Hidden on desktop, replaces SideNav on mobile) -->
-    <nav
-        class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-20 pb-safe">
-        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+    <!-- Mobile Bottom Navigation (Hidden on desktop, hides on scroll down) -->
+    <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-40 pb-safe transition-transform duration-300 transform translate-y-0">
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="dashboard.html">
             <span class="material-symbols-outlined">dashboard</span>
             <span class="font-label-sm text-[10px]">Dashboard</span>
         </a>
-        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="#">
+        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="pomodoro.html">
             <span class="material-symbols-outlined filled">timer</span>
             <span class="font-label-sm text-[10px]">Pomodoro</span>
         </a>
-        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="tareas.html">
             <span class="material-symbols-outlined">checklist</span>
             <span class="font-label-sm text-[10px]">Tasks</span>
         </a>
@@ -197,7 +196,7 @@
             <span class="font-label-sm text-[10px]">Graphs</span>
         </a>
         <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="#">
-            <span class="material-symbols-outlined">psychology</span>
+            <span class="material-symbols-outlined">note_add</span>
             <span class="font-label-sm text-[10px]">Brain Dump</span>
         </a>
     </nav>
