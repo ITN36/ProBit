@@ -43,11 +43,19 @@
             
             <!-- Form -->
             <form id="registroForm" class="w-full flex flex-col text-left space-y-stack-sm mb-stack-md">
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-md text-label-md text-on-surface" for="name">Nombre completo</label>
-                    <input
-                        class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
-                        id="name" name="name" placeholder="Ej. Ana García" type="text" required>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-md text-label-md text-on-surface" for="firstName">Nombre(s)</label>
+                        <input
+                            class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
+                            id="firstName" name="firstName" placeholder="Ana" type="text" required>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-md text-label-md text-on-surface" for="lastName">Apellidos</label>
+                        <input
+                            class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-on-surface-variant/50"
+                            id="lastName" name="lastName" placeholder="García" type="text" required>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="font-label-md text-label-md text-on-surface" for="email">Correo electrónico</label>
