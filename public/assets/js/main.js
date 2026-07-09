@@ -944,6 +944,32 @@ if (saveTaskBtn) {
         const time = taskTimeInput.value;
         const description = taskDescInput ? taskDescInput.value.trim() : "";
         
+        // Validación de fecha y hora en el pasado
+        if (date) {
+            const userTz = (currentUserProfile && currentUserProfile.timezone) 
+                ? currentUserProfile.timezone 
+                : Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const todayStr = getTzDateString(Date.now(), userTz);
+            
+            if (date < todayStr) {
+                if (window.showToast) window.showToast("No puedes agendar una tarea para un día anterior", "error");
+                return;
+            }
+            
+            if (date === todayStr && time) {
+                const nowTimeStr = new Intl.DateTimeFormat('en-GB', { 
+                    timeZone: userTz, 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                }).format(new Date());
+                
+                if (time < nowTimeStr) {
+                    if (window.showToast) window.showToast("No puedes agendar una tarea en una hora pasada de hoy", "error");
+                    return;
+                }
+            }
+        }
+        
         // Disable button while saving
         saveTaskBtn.disabled = true;
         saveTaskBtn.classList.add('opacity-50');
