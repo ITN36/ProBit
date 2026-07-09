@@ -161,125 +161,23 @@
                     </div>
                 </div>
                 <!-- Bento Grid of Tasks -->
-                <div class="grid grid-cols-1 gap-4">
-                    <!-- Task Item 1 -->
-                    <div
-                        class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
-                        <div class="relative w-6 h-6 flex items-center justify-center">
-                            <input
-                                class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all duration-200 cursor-pointer focus:ring-0 focus:ring-offset-0"
-                                id="task-1" type="checkbox">
-                            <span
-                                class="material-symbols-outlined absolute text-white text-[18px] opacity-0 pointer-events-none select-none transition-opacity duration-200 check-icon">check</span>
-                        </div>
-                        <label class="flex-1 font-body-lg text-body-lg text-on-surface cursor-pointer"
-                            for="task-1">Revisar métricas de retención semanal</label>
-                        <div class="flex items-center gap-4">
-                            <!-- Energy Tag -->
-                            <span
-                                class="px-3 py-1 bg-secondary-container/30 text-on-secondary-fixed-variant rounded-full font-label-sm text-label-sm flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Media
-                            </span>
-                            <!-- Metadata -->
-                            <div class="flex items-center gap-4 text-outline font-label-sm text-label-sm">
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-[16px]" data-icon="event">event</span>
-                                    Mañana</span>
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-[16px]" data-icon="timer">timer</span> 2
-                                    poms</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Task Item 2 -->
-                    <div
-                        class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 transition-all">
-                        <div class="relative w-6 h-6">
-                            <input
-                                class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all cursor-pointer"
-                                id="task-2" type="checkbox">
-                        </div>
-                        <label class="flex-1 font-body-lg text-body-lg text-on-surface" for="task-2">Organizar carpetas
-                            del proyecto Brain Dump</label>
-                        <div class="flex items-center gap-4">
-                            <span
-                                class="px-3 py-1 bg-tertiary-fixed/40 text-on-tertiary-fixed-variant rounded-full font-label-sm text-label-sm flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Baja
-                            </span>
-                            <div class="flex items-center gap-4 text-outline font-label-sm text-label-sm">
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-[16px]" data-icon="timer">timer</span> 1
-                                    pom</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Task Item 3 (High Energy) -->
-                    <div
-                        class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 transition-all">
-                        <div class="relative w-6 h-6">
-                            <input
-                                class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all cursor-pointer"
-                                id="task-3" type="checkbox">
-                        </div>
-                        <label class="flex-1 font-body-lg text-body-lg text-on-surface" for="task-3">Redactar manual de
-                            estilo para el equipo</label>
-                        <div class="flex items-center gap-4">
-                            <span
-                                class="px-3 py-1 bg-primary-fixed/50 text-on-primary-fixed-variant rounded-full font-label-sm text-label-sm flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Alta
-                            </span>
-                            <div class="flex items-center gap-4 text-outline font-label-sm text-label-sm">
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-[16px]" data-icon="timer">timer</span> 5
-                                    poms</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Task Item 4 -->
-                    <div
-                        class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 transition-all">
-                        <div class="relative w-6 h-6">
-                            <input
-                                class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all cursor-pointer"
-                                id="task-4" type="checkbox">
-                        </div>
-                        <label class="flex-1 font-body-lg text-body-lg text-on-surface" for="task-4">Responder correos
-                            de proveedores</label>
-                        <div class="flex items-center gap-4">
-                            <span
-                                class="px-3 py-1 bg-tertiary-fixed/40 text-on-tertiary-fixed-variant rounded-full font-label-sm text-label-sm flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Baja
-                            </span>
-                        </div>
-                    </div>
+                <!-- Contenedor Dinámico de Tareas -->
+                <div id="tasks-container" class="grid grid-cols-1 gap-4">
+                    <!-- Las tareas se inyectarán aquí mediante JS -->
                 </div>
-            </section>
-            <!-- Side Cards: Tips or Stats (Optional for Context) -->
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-                <div class="p-8 bg-surface-container-low rounded-[2rem] space-y-4">
-                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                        <span class="material-symbols-outlined text-primary" data-icon="lightbulb">lightbulb</span>
+                
+                <!-- Empty State (Se muestra cuando no hay tareas) -->
+                <div id="empty-state-container" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center">
+                    <div class="w-32 h-32 mb-6 bg-surface-container rounded-full flex items-center justify-center shadow-inner">
+                        <span class="material-symbols-outlined text-[64px] text-primary opacity-50">task</span>
                     </div>
-                    <h4 class="font-headline-md text-headline-md text-on-surface">Consejo de Enfoque</h4>
-                    <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                        Si te sientes abrumado, elige una tarea de <strong>Energía Baja</strong>. Completar algo pequeño
-                        libera dopamina y te ayuda a retomar el ritmo.
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">¡Todo al día!</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-8">
+                        No tienes tareas pendientes en este momento. Tómate un respiro o crea una nueva tarea para continuar.
                     </p>
-                </div>
-                <div
-                    class="p-8 bg-surface-container-low rounded-[2rem] relative overflow-hidden flex flex-col justify-end min-h-[200px]">
-                    <!-- Background Visual Pattern -->
-                    <div class="absolute top-0 right-0 p-4 opacity-10">
-                        <span class="material-symbols-outlined text-[120px]" data-icon="task_alt">task_alt</span>
-                    </div>
-                    <div class="relative z-10 space-y-2">
-                        <div class="text-4xl font-bold text-primary">12/15</div>
-                        <div class="font-label-md text-label-md text-on-surface-variant">Tareas completadas esta semana
-                        </div>
-                        <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden mt-4">
-                            <div class="bg-primary h-full rounded-full" style="width: 80%"></div>
-                        </div>
-                    </div>
+                    <button onclick="document.getElementById('open-task-modal-btn').click()" class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-label-md text-label-md hover:bg-secondary-container/80 transition-colors">
+                        Agregar mi primera tarea
+                    </button>
                 </div>
             </section>
         </div>
@@ -301,7 +199,7 @@
                 <!-- Title Input -->
                 <div class="space-y-2">
                     <label class="font-label-md text-label-md text-on-surface-variant">Título de la Tarea *</label>
-                    <input type="text" placeholder="Ej. Rediseñar página de inicio..." class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                    <input id="task-title-input" type="text" placeholder="Ej. Rediseñar página de inicio..." class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
                 </div>
                 <!-- Energy Selection (Chips) -->
                 <div class="space-y-3">
@@ -337,18 +235,18 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span> Fecha <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
-                        <input type="date" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
+                        <input id="task-date-input" type="date" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
                     </div>
                     <div class="space-y-2">
                         <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> Hora <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
-                        <input type="time" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
+                        <input id="task-time-input" type="time" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
                     </div>
                 </div>
             </div>
             <!-- Footer Actions -->
             <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
                 <button id="cancel-task-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
-                <button class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all">Guardar Tarea</button>
+                <button id="save-task-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all">Guardar Tarea</button>
             </div>
         </div>
     </div>

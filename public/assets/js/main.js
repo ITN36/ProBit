@@ -70,8 +70,8 @@ if (openSidebarBtn && sidebar && sidebarOverlay) {
 import { auth, db } from './firebase.js';
 
 // 2. Traemos las funciones de Firebase para crear cuentas y guardar datos
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { doc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // 3. Buscamos tu formulario en el HTML (recuerda que le pusiste id="registroForm")
 const registroForm = document.getElementById('registroForm');
@@ -400,4 +400,213 @@ if (bottomNav && scrollableMain) {
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
         }
     }, { passive: true });
+}
+
+// --- MANEJO DE SESIÓN Y TAREAS (FIREBASE) ---
+let currentUser = null;
+const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+const publicPages = ['inicio-sesion.html', 'registro.html', 'index.html', ''];
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        if (publicPages.includes(currentPage)) {
+            window.location.href = "dashboard.html";
+        } else if (currentPage === 'tareas.html') {
+            loadUserTasks(user.uid);
+        }
+    } else {
+        currentUser = null;
+        if (!publicPages.includes(currentPage)) {
+            window.location.href = "inicio-sesion.html";
+        }
+    }
+});
+
+// Referencias del DOM para Tareas
+const tasksContainer = document.getElementById('tasks-container');
+const emptyStateContainer = document.getElementById('empty-state-container');
+const saveTaskBtn = document.getElementById('save-task-btn');
+const taskTitleInput = document.getElementById('task-title-input');
+const taskDateInput = document.getElementById('task-date-input');
+const taskTimeInput = document.getElementById('task-time-input');
+
+// Referencias del Modal
+const taskModalOverlay = document.getElementById('task-modal-overlay');
+const taskModalContent = document.getElementById('task-modal-content');
+const openTaskModalBtn = document.getElementById('open-task-modal-btn');
+const closeTaskModalBtn = document.getElementById('close-task-modal-btn');
+const cancelTaskBtn = document.getElementById('cancel-task-btn');
+
+function openTaskModal() {
+    if (taskModalOverlay && taskModalContent) {
+        taskModalOverlay.classList.remove('hidden');
+        // trigger reflow
+        void taskModalOverlay.offsetWidth;
+        taskModalOverlay.classList.remove('opacity-0');
+        taskModalContent.classList.remove('opacity-0', 'scale-95');
+        taskModalContent.classList.add('opacity-100', 'scale-100');
+    }
+}
+
+function closeTaskModal() {
+    if (taskModalOverlay && taskModalContent) {
+        taskModalOverlay.classList.add('opacity-0');
+        taskModalContent.classList.remove('opacity-100', 'scale-100');
+        taskModalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            taskModalOverlay.classList.add('hidden');
+        }, 300);
+    }
+}
+
+if (openTaskModalBtn) openTaskModalBtn.addEventListener('click', openTaskModal);
+if (closeTaskModalBtn) closeTaskModalBtn.addEventListener('click', closeTaskModal);
+if (cancelTaskBtn) cancelTaskBtn.addEventListener('click', closeTaskModal);
+if (taskModalOverlay) {
+    taskModalOverlay.addEventListener('click', (e) => {
+        if (e.target === taskModalOverlay) closeTaskModal();
+    });
+}
+
+// Cargar Tareas
+function loadUserTasks(userId) {
+    if (!tasksContainer || !emptyStateContainer) return;
+    
+    // NOTA: Removemos orderBy("createdAt", "desc") para evitar el error de Firebase que pide crear un índice.
+    // Ordenaremos los resultados directamente en memoria.
+    const q = query(
+        collection(db, "tasks"), 
+        where("userId", "==", userId)
+    );
+    
+    onSnapshot(q, (snapshot) => {
+        tasksContainer.innerHTML = '';
+        if (snapshot.empty) {
+            emptyStateContainer.classList.remove('hidden');
+        } else {
+            emptyStateContainer.classList.add('hidden');
+            
+            // Extraer y ordenar en memoria (de más nuevo a más viejo)
+            const tasksArray = [];
+            snapshot.forEach(docSnap => tasksArray.push({ id: docSnap.id, ...docSnap.data() }));
+            
+            tasksArray.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+                const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+                return timeB - timeA;
+            });
+            
+            tasksArray.forEach((task) => {
+                renderTask(task.id, task);
+            });
+        }
+    }, (error) => {
+        console.error("Error al cargar tareas:", error);
+    });
+}
+
+// Renderizar Tarea Individual
+function renderTask(taskId, task) {
+    let energyIcon = 'battery_20';
+    let energyColor = 'bg-tertiary-fixed/40 text-on-tertiary-fixed-variant';
+    let energyDot = 'bg-tertiary';
+    let energyText = 'Baja';
+    
+    if (task.energy === 'alta') {
+        energyIcon = 'bolt';
+        energyColor = 'bg-error-container text-on-error-container';
+        energyDot = 'bg-error';
+        energyText = 'Alta';
+    } else if (task.energy === 'media') {
+        energyIcon = 'battery_charging_50';
+        energyColor = 'bg-secondary-container text-on-secondary-container';
+        energyDot = 'bg-secondary';
+        energyText = 'Media';
+    }
+    
+    let metadataHtml = '';
+    if (task.date || task.time) {
+        metadataHtml = `<div class="flex items-center gap-4 text-outline font-label-sm text-label-sm">`;
+        if (task.date) metadataHtml += `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">event</span> ${task.date}</span>`;
+        if (task.time) metadataHtml += `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> ${task.time}</span>`;
+        metadataHtml += `</div>`;
+    }
+    
+    const taskHtml = `
+        <div class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 ${task.completed ? 'opacity-60' : ''}">
+            <div class="relative w-6 h-6 flex items-center justify-center">
+                <input class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all duration-200 cursor-pointer focus:ring-0 focus:ring-offset-0" type="checkbox" id="chk-${taskId}" ${task.completed ? 'checked' : ''}>
+                <span class="material-symbols-outlined absolute text-white text-[18px] pointer-events-none select-none transition-opacity duration-200 ${task.completed ? 'opacity-100' : 'opacity-0'}">check</span>
+            </div>
+            <label class="flex-1 font-body-lg text-body-lg text-on-surface cursor-pointer ${task.completed ? 'line-through text-on-surface-variant' : ''}" for="chk-${taskId}">${task.title}</label>
+            <div class="flex items-center gap-4">
+                <span class="px-3 py-1 ${energyColor} rounded-full font-label-sm text-label-sm flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">${energyIcon}</span> ${energyText}
+                </span>
+                ${metadataHtml}
+            </div>
+        </div>
+    `;
+    
+    tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+    
+    // Checkbox listener
+    document.getElementById(`chk-${taskId}`).addEventListener('change', async (e) => {
+        try {
+            await updateDoc(doc(db, "tasks", taskId), { completed: e.target.checked });
+        } catch (error) {
+            console.error("Error al actualizar tarea:", error);
+            e.target.checked = !e.target.checked;
+        }
+    });
+}
+
+// Guardar Nueva Tarea
+if (saveTaskBtn) {
+    saveTaskBtn.addEventListener('click', async () => {
+        if (!currentUser) return;
+        
+        const title = taskTitleInput.value.trim();
+        if (!title) {
+            if (window.showToast) window.showToast("El título de la tarea es obligatorio", "error");
+            return;
+        }
+        
+        const energyNode = document.querySelector('input[name="task-energy"]:checked');
+        const energy = energyNode ? energyNode.value : 'baja';
+        const date = taskDateInput.value;
+        const time = taskTimeInput.value;
+        
+        // Disable button while saving
+        saveTaskBtn.disabled = true;
+        saveTaskBtn.classList.add('opacity-50');
+        
+        try {
+            await addDoc(collection(db, "tasks"), {
+                title,
+                energy,
+                date,
+                time,
+                userId: currentUser.uid,
+                completed: false,
+                createdAt: serverTimestamp()
+            });
+            
+            // Clean up and close modal
+            taskTitleInput.value = '';
+            taskDateInput.value = '';
+            taskTimeInput.value = '';
+            document.querySelector('input[name="task-energy"][value="alta"]').checked = true;
+            document.getElementById('close-task-modal-btn').click();
+            
+            if (window.showToast) window.showToast("Tarea creada exitosamente", "success");
+        } catch (error) {
+            console.error("Error al guardar tarea:", error);
+            if (window.showToast) window.showToast("Hubo un error al guardar", "error");
+        } finally {
+            saveTaskBtn.disabled = false;
+            saveTaskBtn.classList.remove('opacity-50');
+        }
+    });
 }
