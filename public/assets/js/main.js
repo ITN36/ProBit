@@ -447,7 +447,7 @@ onAuthStateChanged(auth, async (user) => {
             openSettingsModal(true);
         }
 
-        if (currentPage === 'tareas.html' || currentPage === 'dashboard.html') {
+        if (currentPage === 'tareas.html' || currentPage === 'dashboard.html' || currentPage === 'pomodoro.html') {
             loadUserTasks(user.uid);
         }
     } else {
@@ -930,6 +930,7 @@ function renderFilteredTasks() {
     
     updateFocusSection();
     renderDashboardTasks();
+    if (typeof renderPomodoroTask === 'function') renderPomodoroTask();
 }
 
 function renderDashboardTasks() {
@@ -1540,3 +1541,218 @@ function closeSettingsModal() {
         settingsModalOverlay.classList.add('hidden');
     }, 300);
 }
+
+// ==========================================
+// POMODORO TASKS INTEGRATION
+// ==========================================
+let activePomodoroTaskId = null;
+
+function setupPomodoroUI() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    if (currentPage !== 'pomodoro.html') return;
+    
+    const addTaskBtn = document.getElementById('pomodoro-add-task-btn');
+    const selectModal = document.getElementById('pomodoro-select-task-modal');
+    const selectContent = document.getElementById('pomodoro-select-task-content');
+    const closeBtn = document.getElementById('close-pomodoro-select-btn');
+    const createNewBtn = document.getElementById('pomodoro-create-new-task-btn');
+    const unlinkBtn = document.getElementById('pomodoro-unlink-task');
+    const checkbox = document.getElementById('pomodoro-task-checkbox');
+    
+    if (addTaskBtn) addTaskBtn.addEventListener('click', openPomodoroSelectModal);
+    if (closeBtn) closeBtn.addEventListener('click', closePomodoroSelectModal);
+    if (selectModal) {
+        selectModal.addEventListener('click', (e) => {
+            if (e.target === selectModal) closePomodoroSelectModal();
+        });
+    }
+    
+    if (createNewBtn) {
+        createNewBtn.addEventListener('click', () => {
+            closePomodoroSelectModal();
+            if (typeof openTaskModal === 'function') openTaskModal();
+        });
+    }
+    
+    if (unlinkBtn) {
+        unlinkBtn.addEventListener('click', () => {
+            activePomodoroTaskId = null;
+            renderPomodoroTask();
+        });
+    }
+    
+    if (checkbox) {
+        checkbox.addEventListener('change', async (e) => {
+            if (!activePomodoroTaskId) return;
+            try {
+                const isCompleted = e.target.checked;
+                const updateData = { completed: isCompleted };
+                if (isCompleted) {
+                    updateData.completedAt = Date.now();
+                } else {
+                    updateData.completedAt = null;
+                }
+                
+                await updateDoc(doc(db, "tasks", activePomodoroTaskId), updateData);
+                
+                if (currentUser && isCompleted) {
+                    const userTz = (currentUserProfile && currentUserProfile.timezone) 
+                        ? currentUserProfile.timezone 
+                        : Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    const dateStr = getTzDateString(Date.now(), userTz);
+                    const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", dateStr);
+                    await setDoc(statRef, { 
+                        completedTasks: increment(1) 
+                    }, { merge: true });
+                }
+                
+                // Si la completó, la quitamos del foco activo del pomodoro
+                if (isCompleted) {
+                    activePomodoroTaskId = null;
+                }
+                
+            } catch (error) {
+                console.error("Error al completar tarea en pomodoro:", error);
+                e.target.checked = !e.target.checked;
+            }
+        });
+    }
+}
+
+function openPomodoroSelectModal() {
+    const modal = document.getElementById('pomodoro-select-task-modal');
+    const content = document.getElementById('pomodoro-select-task-content');
+    if (!modal || !content) return;
+    
+    renderPomodoroTaskList();
+    
+    modal.classList.remove('hidden');
+    void modal.offsetWidth;
+    modal.classList.remove('opacity-0');
+    content.classList.remove('opacity-0', 'scale-95');
+    content.classList.add('opacity-100', 'scale-100');
+}
+
+function closePomodoroSelectModal() {
+    const modal = document.getElementById('pomodoro-select-task-modal');
+    const content = document.getElementById('pomodoro-select-task-content');
+    if (!modal || !content) return;
+    
+    modal.classList.add('opacity-0');
+    content.classList.remove('opacity-100', 'scale-100');
+    content.classList.add('opacity-0', 'scale-95');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+function renderPomodoroTaskList() {
+    const listContainer = document.getElementById('pomodoro-task-list');
+    if (!listContainer) return;
+    
+    const pendingTasks = allUserTasks.filter(t => !t.completed);
+    
+    if (pendingTasks.length === 0) {
+        listContainer.innerHTML = '<div class="text-center p-4 text-on-surface-variant font-body-md">No tienes tareas pendientes. ¡Todo al día!</div>';
+        return;
+    }
+    
+    listContainer.innerHTML = '';
+    
+    pendingTasks.forEach(task => {
+        let energyIcon = 'battery_20';
+        let energyColor = 'bg-surface-container-high text-on-surface-variant';
+        let energyText = 'Baja';
+        
+        if (task.energy === 'alta') {
+            energyIcon = 'bolt';
+            energyColor = 'bg-error-container text-on-error-container';
+            energyText = 'Alta';
+        } else if (task.energy === 'media') {
+            energyIcon = 'battery_charging_50';
+            energyColor = 'bg-secondary-container text-on-secondary-container';
+            energyText = 'Media';
+        }
+        
+        const taskEl = document.createElement('div');
+        taskEl.className = 'p-3 rounded-lg border border-outline-variant/30 hover:border-primary/50 hover:bg-surface-container-lowest cursor-pointer transition-colors flex justify-between items-center';
+        taskEl.innerHTML = `
+            <div class="flex-1 min-w-0 pr-3">
+                <h4 class="font-body-md text-on-surface truncate">${task.title}</h4>
+            </div>
+            <span class="px-2 py-1 ${energyColor} rounded-full font-label-sm text-[10px] flex items-center gap-1 shrink-0">
+                <span class="material-symbols-outlined text-[12px]">${energyIcon}</span> ${energyText}
+            </span>
+        `;
+        taskEl.addEventListener('click', () => {
+            activePomodoroTaskId = task.id;
+            closePomodoroSelectModal();
+            renderPomodoroTask();
+        });
+        listContainer.appendChild(taskEl);
+    });
+}
+
+function renderPomodoroTask() {
+    const emptyState = document.getElementById('pomodoro-empty-state');
+    const activeState = document.getElementById('pomodoro-active-state');
+    
+    if (!emptyState || !activeState) return;
+    
+    if (!activePomodoroTaskId) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+        activeState.classList.add('hidden');
+        activeState.classList.remove('flex');
+        return;
+    }
+    
+    const task = allUserTasks.find(t => t.id === activePomodoroTaskId);
+    if (!task || task.completed) {
+        // La tarea ya no existe o fue completada desde otro lado
+        activePomodoroTaskId = null;
+        renderPomodoroTask();
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    emptyState.classList.remove('flex');
+    activeState.classList.remove('hidden');
+    activeState.classList.add('flex');
+    
+    document.getElementById('pomodoro-active-title').textContent = task.title;
+    const checkbox = document.getElementById('pomodoro-task-checkbox');
+    if (checkbox) checkbox.checked = false;
+    
+    let energyIcon = 'battery_20';
+    let energyColor = 'bg-surface-container-high text-on-surface-variant';
+    let energyText = 'Baja';
+    
+    if (task.energy === 'alta') {
+        energyIcon = 'bolt';
+        energyColor = 'bg-error-container text-on-error-container text-error';
+        energyText = 'Alta';
+    } else if (task.energy === 'media') {
+        energyIcon = 'battery_charging_50';
+        energyColor = 'bg-secondary-container text-on-secondary-container text-secondary';
+        energyText = 'Media';
+    }
+    
+    const metaContainer = document.getElementById('pomodoro-active-meta');
+    if (metaContainer) {
+        let metaHtml = `
+            <span class="px-2 py-1 ${energyColor} rounded-DEFAULT font-label-sm text-[10px] uppercase tracking-wider flex items-center gap-1">
+                <span class="material-symbols-outlined text-[12px]">${energyIcon}</span> ${energyText}
+            </span>
+        `;
+        if (task.time) {
+            metaHtml += `<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> ${task.time}</span>`;
+        }
+        metaContainer.innerHTML = metaHtml;
+    }
+}
+
+// Inicializar UI de Pomodoro al final
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(setupPomodoroUI, 500);
+});
