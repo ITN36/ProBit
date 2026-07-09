@@ -714,6 +714,69 @@ function renderFilteredTasks() {
         }).length;
         completedTodayCountEl.textContent = count;
     }
+    
+    updateFocusSection();
+}
+
+function updateFocusSection() {
+    const focusTitle = document.getElementById('focus-task-title');
+    const focusMeta = document.getElementById('focus-task-meta');
+    const focusIcon = document.getElementById('focus-task-icon');
+    const focusEnergy = document.getElementById('focus-task-energy');
+    const focusBtn = document.getElementById('focus-task-btn');
+    
+    if (!focusTitle) return;
+    
+    const pendingTasks = allUserTasks.filter(t => !t.completed);
+    
+    if (pendingTasks.length === 0) {
+        focusTitle.textContent = "Empieza creando una tarea";
+        if (focusMeta) focusMeta.classList.add('hidden');
+        if (focusBtn) focusBtn.classList.add('hidden');
+        return;
+    }
+    
+    if (focusMeta) focusMeta.classList.remove('hidden');
+    if (focusBtn) focusBtn.classList.remove('hidden');
+    
+    const userTz = (currentUserProfile && currentUserProfile.timezone) 
+        ? currentUserProfile.timezone 
+        : Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = getTzDateString(Date.now(), userTz);
+    
+    const energyPriority = { "alta": 3, "media": 2, "baja": 1 };
+    
+    const todayTasks = pendingTasks.filter(t => t.date === todayStr);
+    const otherTasks = pendingTasks.filter(t => t.date !== todayStr);
+    
+    let selectedTask = null;
+    
+    if (todayTasks.length > 0) {
+        todayTasks.sort((a, b) => (energyPriority[b.energy] || 0) - (energyPriority[a.energy] || 0));
+        selectedTask = todayTasks[0];
+    } else {
+        otherTasks.sort((a, b) => (energyPriority[b.energy] || 0) - (energyPriority[a.energy] || 0));
+        selectedTask = otherTasks[0];
+    }
+    
+    focusTitle.textContent = selectedTask.title;
+    
+    if (selectedTask.energy === 'alta') {
+        focusIcon.textContent = 'bolt';
+        focusEnergy.textContent = 'Energía Alta';
+        focusIcon.className = 'material-symbols-outlined text-[20px] text-error';
+        focusEnergy.className = 'font-label-md text-label-md text-error';
+    } else if (selectedTask.energy === 'media') {
+        focusIcon.textContent = 'battery_50';
+        focusEnergy.textContent = 'Energía Media';
+        focusIcon.className = 'material-symbols-outlined text-[20px] text-primary';
+        focusEnergy.className = 'font-label-md text-label-md text-primary';
+    } else {
+        focusIcon.textContent = 'battery_20';
+        focusEnergy.textContent = 'Energía Baja';
+        focusIcon.className = 'material-symbols-outlined text-[20px] text-tertiary';
+        focusEnergy.className = 'font-label-md text-label-md text-tertiary';
+    }
 }
 
 // Cargar Tareas
