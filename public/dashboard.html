@@ -149,7 +149,7 @@
                     </div>
                     <div>
                         <p class="font-label-md text-label-md text-on-surface-variant mb-1">Progreso diario</p>
-                        <h3 class="font-headline-lg text-headline-lg text-on-background">8 Tareas completadas hoy</h3>
+                        <h3 class="font-headline-lg text-headline-lg text-on-background"><span id="dashboard-completed-today-count">0</span> Tareas completadas hoy</h3>
                     </div>
                 </div>
             </section>
@@ -202,76 +202,13 @@
                 <div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-headline-md text-headline-md text-on-background">Tareas pendientes</h3>
-                        <button
+                        <button id="dashboard-new-task-btn"
                             class="flex items-center gap-2 font-label-md text-label-md text-primary hover:bg-surface-container-low px-3 py-2 rounded-lg transition-colors">
                             <span class="material-symbols-outlined text-sm">add</span>
                             <span class="">Nueva tarea</span>
                         </button>
                     </div>
-                    <div class="flex flex-col gap-3">
-                        <!-- High Energy Task -->
-                        <div
-                            class="p-4 rounded-lg border border-surface-variant hover:border-outline-variant transition-colors group flex items-start gap-4">
-                            <input aria-label="Completar Presentación trimestral" class="probit-checkbox mt-1"
-                                type="checkbox">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4
-                                        class="font-body-lg text-body-lg text-on-background group-hover:text-primary transition-colors">
-                                        Preparar presentación trimestral</h4>
-                                    <!-- Energy Badge (High) -->
-                                    <span
-                                        class="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-1 bg-error-container text-on-error-container rounded-md">
-                                        <span class="material-symbols-outlined text-[14px]">bolt</span>
-                                        Energía Alta
-                                    </span>
-                                </div>
-                                <p class="font-body-md text-body-md text-on-surface-variant">Requiere análisis de datos
-                                    y redacción de conclusiones estructuradas.</p>
-                            </div>
-                        </div>
-                        <!-- Medium Energy Task -->
-                        <div
-                            class="p-4 rounded-lg border border-surface-variant hover:border-outline-variant transition-colors group flex items-start gap-4">
-                            <input aria-label="Completar Responder correos" class="probit-checkbox mt-1"
-                                type="checkbox">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4
-                                        class="font-body-lg text-body-lg text-on-background group-hover:text-primary transition-colors">
-                                        Responder correos acumulados</h4>
-                                    <!-- Energy Badge (Medium) -->
-                                    <span
-                                        class="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-1 bg-secondary-container text-on-secondary-container rounded-md">
-                                        <span class="material-symbols-outlined text-[14px]">battery_charging_50</span>
-                                        Energía Media
-                                    </span>
-                                </div>
-                                <p class="font-body-md text-body-md text-on-surface-variant">Filtrar bandeja de entrada
-                                    y responder solicitudes de diseño pendientes.</p>
-                            </div>
-                        </div>
-                        <!-- Low Energy Task -->
-                        <div
-                            class="p-4 rounded-lg border border-surface-variant hover:border-outline-variant transition-colors group flex items-start gap-4">
-                            <input aria-label="Completar Organizar escritorio" class="probit-checkbox mt-1"
-                                type="checkbox">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4
-                                        class="font-body-lg text-body-lg text-on-background group-hover:text-primary transition-colors">
-                                        Organizar escritorio digital</h4>
-                                    <!-- Energy Badge (Low) -->
-                                    <span
-                                        class="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-1 bg-surface-container-high text-on-surface-variant rounded-md border border-outline-variant">
-                                        <span class="material-symbols-outlined text-[14px]">battery_20</span>
-                                        Energía Baja
-                                    </span>
-                                </div>
-                                <p class="font-body-md text-body-md text-on-surface-variant">Mover archivos descargados
-                                    a sus carpetas correspondientes. Tarea mecánica.</p>
-                            </div>
-                        </div>
+                    <div id="dashboard-tasks-container" class="flex flex-col gap-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                     </div>
                 </div>
             </section>

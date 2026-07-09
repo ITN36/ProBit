@@ -441,12 +441,13 @@ onAuthStateChanged(auth, async (user) => {
         }
         
         setupSettingsModal();
+        setupTaskModal();
         
         if (!currentUserProfile.timezone) {
             openSettingsModal(true);
         }
 
-        if (currentPage === 'tareas.html') {
+        if (currentPage === 'tareas.html' || currentPage === 'dashboard.html') {
             loadUserTasks(user.uid);
         }
     } else {
@@ -461,26 +462,26 @@ onAuthStateChanged(auth, async (user) => {
 // Referencias del DOM para Tareas
 const tasksContainer = document.getElementById('tasks-container');
 const emptyStateContainer = document.getElementById('empty-state-container');
-const saveTaskBtn = document.getElementById('save-task-btn');
-const taskTitleInput = document.getElementById('task-title-input');
-const taskDescInput = document.getElementById('task-desc-input');
-const taskDescCount = document.getElementById('task-desc-count');
-const taskDateInput = document.getElementById('task-date-input');
-const taskTimeInput = document.getElementById('task-time-input');
+let saveTaskBtn = document.getElementById('save-task-btn');
+let taskTitleInput = document.getElementById('task-title-input');
+let taskDescInput = document.getElementById('task-desc-input');
+let taskDescCount = document.getElementById('task-desc-count');
+let taskDateInput = document.getElementById('task-date-input');
+let taskTimeInput = document.getElementById('task-time-input');
 
-// Referencias del Modal
-const taskModalTitle = document.getElementById('task-modal-title');
-const taskModalOverlay = document.getElementById('task-modal-overlay');
-const taskModalContent = document.getElementById('task-modal-content');
-const openTaskModalBtn = document.getElementById('open-task-modal-btn');
-const closeTaskModalBtn = document.getElementById('close-task-modal-btn');
-const cancelTaskBtn = document.getElementById('cancel-task-btn');
+// Referencias del Modal de Tareas
+let taskModalTitle;
+let taskModalOverlay;
+let taskModalContent;
+let openTaskModalBtn;
+let closeTaskModalBtn;
+let cancelTaskBtn;
 
 // Referencias del Modal de Eliminación
-const deleteModalOverlay = document.getElementById('delete-modal-overlay');
-const deleteModalContent = document.getElementById('delete-modal-content');
-const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+let deleteModalOverlay;
+let deleteModalContent;
+let cancelDeleteBtn;
+let confirmDeleteBtn;
 
 let currentEditingTaskId = null;
 let taskIdToDelete = null;
@@ -540,15 +541,6 @@ function closeTaskModal() {
     }
 }
 
-if (openTaskModalBtn) openTaskModalBtn.addEventListener('click', () => openTaskModal());
-if (closeTaskModalBtn) closeTaskModalBtn.addEventListener('click', closeTaskModal);
-if (cancelTaskBtn) cancelTaskBtn.addEventListener('click', closeTaskModal);
-if (taskModalOverlay) {
-    taskModalOverlay.addEventListener('click', (e) => {
-        if (e.target === taskModalOverlay) closeTaskModal();
-    });
-}
-
 // Funciones del Modal de Eliminación
 function openDeleteModal(taskId) {
     taskIdToDelete = taskId;
@@ -573,37 +565,251 @@ function closeDeleteModal() {
     }
 }
 
-if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-if (deleteModalOverlay) {
-    deleteModalOverlay.addEventListener('click', (e) => {
-        if (e.target === deleteModalOverlay) closeDeleteModal();
-    });
+function setupTaskModal() {
+    if (document.getElementById('task-modal-overlay')) return;
+
+    const modalsHtml = `
+    <!-- Task Modal Overlay -->
+    <div id="task-modal-overlay" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <!-- Modal Content -->
+        <div id="task-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-lg border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header -->
+            <div class="px-8 py-6 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-lowest">
+                <h3 id="task-modal-title" class="font-headline-md text-headline-md text-primary font-bold">Nueva Tarea</h3>
+                <button id="close-task-modal-btn" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                <!-- Title Input -->
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Título de la Tarea *</label>
+                    <input id="task-title-input" type="text" placeholder="Ej. Rediseñar página de inicio..." class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                </div>
+                <!-- Description Input -->
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface-variant flex justify-between">
+                        Descripción <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span>
+                    </label>
+                    <textarea id="task-desc-input" placeholder="Añade detalles o notas adicionales..." maxlength="150" rows="3" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"></textarea>
+                    <div class="text-right text-[10px] text-on-surface-variant opacity-60"><span id="task-desc-count">0</span> / 150</div>
+                </div>
+                <!-- Energy Selection (Chips) -->
+                <div class="space-y-3">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Nivel de Energía *</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer group relative">
+                            <input type="radio" name="task-energy" value="alta" class="peer sr-only" checked>
+                            <div class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">bolt</span> Alta
+                                </span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group relative">
+                            <input type="radio" name="task-energy" value="media" class="peer sr-only">
+                            <div class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-secondary-container peer-checked:text-on-secondary-container peer-checked:border-secondary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">battery_charging_50</span> Media
+                                </span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group relative">
+                            <input type="radio" name="task-energy" value="baja" class="peer sr-only">
+                            <div class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-tertiary-container peer-checked:text-on-tertiary-container peer-checked:border-tertiary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">battery_20</span> Baja
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <!-- Optional Date/Time -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span> Fecha <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
+                        <input id="task-date-input" type="date" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> Hora <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
+                        <input id="task-time-input" type="time" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
+                    </div>
+                </div>
+            </div>
+            <!-- Footer Actions -->
+            <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                <button id="cancel-task-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="save-task-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all">Guardar Tarea</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal-overlay" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <!-- Modal Content -->
+        <div id="delete-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-sm border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col">
+            <div class="p-8 text-center space-y-4">
+                <div class="w-16 h-16 bg-error-container text-error rounded-full flex items-center justify-center mx-auto mb-2">
+                    <span class="material-symbols-outlined text-[32px]">warning</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">¿Eliminar Tarea?</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant">Esta acción no se puede deshacer. La tarea será eliminada permanentemente.</p>
+            </div>
+            <!-- Footer Actions -->
+            <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                <button id="cancel-delete-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="confirm-delete-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-error text-on-error hover:bg-error/90 shadow-md transition-all flex items-center justify-center gap-2">Eliminar</button>
+            </div>
+        </div>
+    </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalsHtml);
+
+    // Obtener las referencias recién creadas
+    taskModalTitle = document.getElementById('task-modal-title');
+    taskModalOverlay = document.getElementById('task-modal-overlay');
+    taskModalContent = document.getElementById('task-modal-content');
+    closeTaskModalBtn = document.getElementById('close-task-modal-btn');
+    cancelTaskBtn = document.getElementById('cancel-task-btn');
+    
+    deleteModalOverlay = document.getElementById('delete-modal-overlay');
+    deleteModalContent = document.getElementById('delete-modal-content');
+    cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    
+    openTaskModalBtn = document.getElementById('open-task-modal-btn');
+    const dashboardNewTaskBtn = document.getElementById('dashboard-new-task-btn');
+
+    // Reasignar inputs globales (ya que fueron declarados pero no encontrados al inicio de la carga)
+    taskTitleInput = document.getElementById('task-title-input');
+    taskDescInput = document.getElementById('task-desc-input');
+    taskDescCount = document.getElementById('task-desc-count');
+    taskDateInput = document.getElementById('task-date-input');
+    taskTimeInput = document.getElementById('task-time-input');
+    saveTaskBtn = document.getElementById('save-task-btn');
+
+    if (taskDescInput && taskDescCount) {
+        taskDescInput.addEventListener('input', (e) => {
+            taskDescCount.textContent = e.target.value.length;
+        });
+    }
+
+    // Attach listeners
+    if (openTaskModalBtn) openTaskModalBtn.addEventListener('click', () => openTaskModal());
+    if (dashboardNewTaskBtn) dashboardNewTaskBtn.addEventListener('click', () => openTaskModal());
+    if (closeTaskModalBtn) closeTaskModalBtn.addEventListener('click', closeTaskModal);
+    if (cancelTaskBtn) cancelTaskBtn.addEventListener('click', closeTaskModal);
+    if (taskModalOverlay) {
+        taskModalOverlay.addEventListener('click', (e) => {
+            if (e.target === taskModalOverlay) closeTaskModal();
+        });
+    }
+    
+    if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    if (deleteModalOverlay) {
+        deleteModalOverlay.addEventListener('click', (e) => {
+            if (e.target === deleteModalOverlay) closeDeleteModal();
+        });
+    }
+    
+    // Guardar Tarea Logic
+    if (saveTaskBtn) {
+        saveTaskBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            
+            const title = taskTitleInput.value.trim();
+            if (!title) {
+                if (window.showToast) window.showToast("El título de la tarea es obligatorio", "error");
+                return;
+            }
+            
+            const energyNode = document.querySelector('input[name="task-energy"]:checked');
+            const energy = energyNode ? energyNode.value : 'baja';
+            const date = taskDateInput.value;
+            const time = taskTimeInput.value;
+            const description = taskDescInput ? taskDescInput.value.trim() : "";
+            
+            // Validación de fecha y hora en el pasado
+            if (date) {
+                const userTz = (currentUserProfile && currentUserProfile.timezone) 
+                    ? currentUserProfile.timezone 
+                    : Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const todayStr = getTzDateString(Date.now(), userTz);
+                
+                if (date < todayStr) {
+                    if (window.showToast) window.showToast("No puedes agendar una tarea para un día anterior", "error");
+                    return;
+                }
+                
+                if (date === todayStr && time) {
+                    const nowTimeStr = new Intl.DateTimeFormat('en-GB', { 
+                        timeZone: userTz, 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    }).format(new Date());
+                    
+                    if (time < nowTimeStr) {
+                        if (window.showToast) window.showToast("No puedes agendar una tarea en una hora pasada de hoy", "error");
+                        return;
+                    }
+                }
+            }
+            
+            saveTaskBtn.disabled = true;
+            saveTaskBtn.classList.add('opacity-50');
+            
+            try {
+                if (currentEditingTaskId) {
+                    await updateDoc(doc(db, "tasks", currentEditingTaskId), {
+                        title, description, energy, date, time
+                    });
+                    if (window.showToast) window.showToast("Tarea actualizada exitosamente", "success");
+                } else {
+                    await addDoc(collection(db, "tasks"), {
+                        title, description, energy, date, time,
+                        userId: currentUser.uid, completed: false, createdAt: serverTimestamp()
+                    });
+                    if (window.showToast) window.showToast("Tarea creada exitosamente", "success");
+                }
+                closeTaskModal();
+            } catch (error) {
+                console.error("Error al guardar tarea:", error);
+                if (window.showToast) window.showToast("Hubo un error al guardar", "error");
+            } finally {
+                saveTaskBtn.disabled = false;
+                saveTaskBtn.classList.remove('opacity-50');
+            }
+        });
+    }
+    
+    // Eliminar Tarea Logic
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!taskIdToDelete) return;
+            
+            const originalText = confirmDeleteBtn.innerHTML;
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.classList.add('opacity-50');
+            confirmDeleteBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Eliminando...';
+            
+            try {
+                await deleteDoc(doc(db, "tasks", taskIdToDelete));
+                if (window.showToast) window.showToast("Tarea eliminada", "success");
+                closeDeleteModal();
+            } catch (error) {
+                console.error("Error al eliminar tarea:", error);
+                if (window.showToast) window.showToast("Hubo un error al eliminar", "error");
+            } finally {
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.classList.remove('opacity-50');
+                confirmDeleteBtn.innerHTML = originalText;
+            }
+        });
+    }
 }
 
-if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', async () => {
-        if (!taskIdToDelete) return;
-        
-        // Disable button while processing
-        const originalText = confirmDeleteBtn.innerHTML;
-        confirmDeleteBtn.disabled = true;
-        confirmDeleteBtn.classList.add('opacity-50');
-        confirmDeleteBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Eliminando...';
-        
-        try {
-            await deleteDoc(doc(db, "tasks", taskIdToDelete));
-            if (window.showToast) window.showToast("Tarea eliminada", "success");
-            closeDeleteModal();
-        } catch (error) {
-            console.error("Error al eliminar tarea:", error);
-            if (window.showToast) window.showToast("Hubo un error al eliminar", "error");
-        } finally {
-            confirmDeleteBtn.disabled = false;
-            confirmDeleteBtn.classList.remove('opacity-50');
-            confirmDeleteBtn.innerHTML = originalText;
-        }
-    });
-}
 
 let allUserTasks = [];
 let currentFilter = 'todas';
@@ -666,42 +872,47 @@ function getTzDateString(timestamp, tz) {
 }
 
 function renderFilteredTasks() {
-    if (!tasksContainer || !emptyStateContainer) return;
-    tasksContainer.innerHTML = '';
+    let filteredTasks = [];
     
-    // 1. Filtrar por estado
-    let filteredTasks = allUserTasks.filter(task => {
-        if (currentStatusFilter === 'pendientes') return task.completed === false;
-        if (currentStatusFilter === 'completadas') return task.completed === true;
-        return true;
-    });
-
-    // 2. Filtrar por energía
-    if (currentFilter !== 'todas') {
-        filteredTasks = filteredTasks.filter(task => task.energy === currentFilter);
-    }
+    if (tasksContainer && emptyStateContainer) {
+        tasksContainer.innerHTML = '';
         
-    if (filteredTasks.length === 0) {
-        if (emptyStateTitle && emptyStateDesc && emptyStateIcon) {
-            if (currentStatusFilter === 'pendientes') {
-                emptyStateIcon.textContent = 'task';
-                emptyStateTitle.textContent = '¡Todo al día!';
-                emptyStateDesc.textContent = 'No tienes tareas pendientes. Tómate un respiro o añade una nueva.';
-            } else {
-                emptyStateIcon.textContent = 'done_all';
-                emptyStateTitle.textContent = 'Aún no hay tareas completadas';
-                emptyStateDesc.textContent = 'Cuando marques una tarea como hecha, aparecerá aquí.';
-            }
+        // 1. Filtrar por estado
+        filteredTasks = allUserTasks.filter(task => {
+            if (currentStatusFilter === 'pendientes') return task.completed === false;
+            if (currentStatusFilter === 'completadas') return task.completed === true;
+            return true;
+        });
+
+        // 2. Filtrar por energía
+        if (currentFilter !== 'todas') {
+            filteredTasks = filteredTasks.filter(task => task.energy === currentFilter);
         }
-        emptyStateContainer.classList.remove('hidden');
-    } else {
-        emptyStateContainer.classList.add('hidden');
-        filteredTasks.forEach(task => renderTask(task.id, task));
+            
+        if (filteredTasks.length === 0) {
+            if (emptyStateTitle && emptyStateDesc && emptyStateIcon) {
+                if (currentStatusFilter === 'pendientes') {
+                    emptyStateIcon.textContent = 'task';
+                    emptyStateTitle.textContent = '¡Todo al día!';
+                    emptyStateDesc.textContent = 'No tienes tareas pendientes. Tómate un respiro o añade una nueva.';
+                } else {
+                    emptyStateIcon.textContent = 'done_all';
+                    emptyStateTitle.textContent = 'Aún no hay tareas completadas';
+                    emptyStateDesc.textContent = 'Cuando marques una tarea como hecha, aparecerá aquí.';
+                }
+            }
+            emptyStateContainer.classList.remove('hidden');
+        } else {
+            emptyStateContainer.classList.add('hidden');
+            filteredTasks.forEach(task => renderTask(task.id, task));
+        }
     }
     
     // Update completed today count
     const completedTodayCountEl = document.getElementById('completed-today-count');
-    if (completedTodayCountEl) {
+    const dashboardCompletedCountEl = document.getElementById('dashboard-completed-today-count');
+    
+    if (completedTodayCountEl || dashboardCompletedCountEl) {
         const userTz = (currentUserProfile && currentUserProfile.timezone) 
             ? currentUserProfile.timezone 
             : Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -712,10 +923,149 @@ function renderFilteredTasks() {
             const completedTimeMs = t.completedAt.toMillis ? t.completedAt.toMillis() : t.completedAt;
             return getTzDateString(completedTimeMs, userTz) === todayStr;
         }).length;
-        completedTodayCountEl.textContent = count;
+        
+        if (completedTodayCountEl) completedTodayCountEl.textContent = count;
+        if (dashboardCompletedCountEl) dashboardCompletedCountEl.textContent = count;
     }
     
     updateFocusSection();
+    renderDashboardTasks();
+}
+
+function renderDashboardTasks() {
+    const dashboardContainer = document.getElementById('dashboard-tasks-container');
+    if (!dashboardContainer) return;
+    
+    dashboardContainer.innerHTML = '';
+    
+    let pendingTasks = allUserTasks.filter(t => !t.completed);
+    
+    if (pendingTasks.length === 0) {
+        dashboardContainer.innerHTML = `
+            <div class="text-center p-8 text-on-surface-variant flex flex-col items-center justify-center">
+                <span class="material-symbols-outlined text-4xl mb-2 opacity-50">task</span>
+                <p class="font-body-md text-body-md">No hay tareas pendientes. ¡Todo al día!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const userTz = (currentUserProfile && currentUserProfile.timezone) 
+        ? currentUserProfile.timezone 
+        : Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = getTzDateString(Date.now(), userTz);
+    
+    function getPriority(t) {
+        if (t.date && t.date > todayStr) return 6; // Future
+        if (t.date === todayStr) {
+            if (t.time) return 1;
+            return 2;
+        }
+        // No date
+        if (t.energy === 'alta') return 3;
+        if (t.energy === 'media') return 4;
+        return 5;
+    }
+    
+    pendingTasks.sort((a, b) => {
+        const pA = getPriority(a);
+        const pB = getPriority(b);
+        if (pA !== pB) return pA - pB;
+        // Si tienen la misma prioridad, la más nueva primero
+        const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+        const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+        return timeB - timeA;
+    });
+    
+    pendingTasks.forEach(task => {
+        let energyIcon = 'battery_20';
+        let energyColor = 'bg-surface-container-high text-on-surface-variant border border-outline-variant';
+        let energyText = 'Baja';
+        
+        if (task.energy === 'alta') {
+            energyIcon = 'bolt';
+            energyColor = 'bg-error-container text-on-error-container border border-error/20';
+            energyText = 'Alta';
+        } else if (task.energy === 'media') {
+            energyIcon = 'battery_charging_50';
+            energyColor = 'bg-secondary-container text-on-secondary-container border border-secondary/20';
+            energyText = 'Media';
+        }
+        
+        let isOverdue = false;
+        if (task.date) {
+            if (task.date < todayStr) {
+                isOverdue = true;
+            } else if (task.date === todayStr && task.time) {
+                const nowTimeStr = new Intl.DateTimeFormat('en-GB', { 
+                    timeZone: userTz, 
+                    hour: '2-digit', minute: '2-digit' 
+                }).format(new Date());
+                if (task.time < nowTimeStr) isOverdue = true;
+            }
+        }
+        
+        const baseClass = isOverdue 
+            ? "border-error/30 bg-error/5 hover:border-error/50" 
+            : "border-surface-variant hover:border-outline-variant bg-surface-container-lowest";
+            
+        const titleClass = isOverdue 
+            ? "text-error" 
+            : "text-on-background group-hover:text-primary";
+            
+        let metaHtml = '';
+        if (task.date || task.time) {
+            metaHtml = `<div class="flex gap-3 text-xs mt-2 ${isOverdue ? 'text-error font-bold' : 'text-on-surface-variant opacity-80'}">`;
+            if (task.date) metaHtml += `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">event</span>${task.date}</span>`;
+            if (task.time) metaHtml += `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span>${task.time}</span>`;
+            metaHtml += `</div>`;
+        }
+        
+        const html = `
+            <div class="p-4 rounded-lg border transition-colors group flex items-start gap-4 ${baseClass}">
+                <input aria-label="Completar ${task.title}" class="probit-checkbox mt-1 dashboard-task-chk" type="checkbox" data-id="${task.id}">
+                <div class="flex-1">
+                    <div class="flex justify-between items-start mb-1">
+                        <h4 class="font-body-lg text-body-lg transition-colors cursor-pointer ${titleClass}" onclick="document.getElementById('edit-${task.id}-dash').click()">${task.title}</h4>
+                        <span class="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-1 rounded-md ${energyColor}">
+                            <span class="material-symbols-outlined text-[14px]">${energyIcon}</span>
+                            Energía ${energyText}
+                        </span>
+                    </div>
+                    <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 cursor-pointer" onclick="document.getElementById('edit-${task.id}-dash').click()">${task.description || ''}</p>
+                    ${metaHtml}
+                    <button id="edit-${task.id}-dash" class="hidden"></button>
+                </div>
+            </div>
+        `;
+        dashboardContainer.insertAdjacentHTML('beforeend', html);
+        
+        const editBtn = document.getElementById(`edit-${task.id}-dash`);
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                if (typeof openTaskModal === 'function') openTaskModal(task.id, task);
+            });
+        }
+    });
+    
+    // Checkbox listeners for dashboard
+    document.querySelectorAll('.dashboard-task-chk').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+            try {
+                const taskId = e.target.dataset.id;
+                const updateData = { completed: true, completedAt: Date.now() };
+                await updateDoc(doc(db, "tasks", taskId), updateData);
+                
+                if (currentUser) {
+                    const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", todayStr);
+                    await setDoc(statRef, { completedTasks: increment(1) }, { merge: true });
+                }
+            } catch (error) {
+                console.error(error);
+                e.target.checked = false;
+            }
+        });
+    });
 }
 
 function updateFocusSection() {
@@ -781,7 +1131,6 @@ function updateFocusSection() {
 
 // Cargar Tareas
 function loadUserTasks(userId) {
-    if (!tasksContainer || !emptyStateContainer) return;
     
     // NOTA: Removemos orderBy("createdAt", "desc") para evitar el error de Firebase que pide crear un índice.
     // Ordenaremos los resultados directamente en memoria.
