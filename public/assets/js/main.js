@@ -71,7 +71,7 @@ import { auth, db } from './firebase.js';
 
 // 2. Traemos las funciones de Firebase para crear cuentas y guardar datos
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { doc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { doc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // 3. Buscamos tu formulario en el HTML (recuerda que le pusiste id="registroForm")
 const registroForm = document.getElementById('registroForm');
@@ -647,6 +647,22 @@ function renderFilteredTasks() {
         emptyStateContainer.classList.add('hidden');
         filteredTasks.forEach(task => renderTask(task.id, task));
     }
+    
+    // Update completed today count
+    const completedTodayCountEl = document.getElementById('completed-today-count');
+    if (completedTodayCountEl) {
+        const todayMidnight = new Date();
+        todayMidnight.setHours(0, 0, 0, 0);
+        const todayMidnightMs = todayMidnight.getTime();
+        
+        const count = allUserTasks.filter(t => {
+            if (!t.completed || !t.completedAt) return false;
+            // completedAt might be a timestamp or a number
+            const completedTimeMs = t.completedAt.toMillis ? t.completedAt.toMillis() : t.completedAt;
+            return completedTimeMs >= todayMidnightMs;
+        }).length;
+        completedTodayCountEl.textContent = count;
+    }
 }
 
 // Cargar Tareas
@@ -661,8 +677,26 @@ function loadUserTasks(userId) {
     );
     
     onSnapshot(q, (snapshot) => {
+        const todayMidnight = new Date();
+        todayMidnight.setHours(0, 0, 0, 0);
+        const todayMidnightMs = todayMidnight.getTime();
+        
         allUserTasks = [];
-        snapshot.forEach(docSnap => allUserTasks.push({ id: docSnap.id, ...docSnap.data() }));
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            
+            // Sweep: si está completada y fue antes de la medianoche de hoy, eliminar de Firebase
+            if (data.completed && data.completedAt) {
+                const completedTimeMs = data.completedAt.toMillis ? data.completedAt.toMillis() : data.completedAt;
+                if (completedTimeMs < todayMidnightMs) {
+                    deleteDoc(doc(db, "tasks", id)).catch(err => console.error("Error sweep cleanup:", err));
+                    return; // saltar para no añadirla a allUserTasks
+                }
+            }
+            
+            allUserTasks.push({ id, ...data });
+        });
         
         allUserTasks.sort((a, b) => {
             const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
@@ -749,7 +783,23 @@ function renderTask(taskId, task) {
     // Checkbox listener
     document.getElementById(`chk-${taskId}`).addEventListener('change', async (e) => {
         try {
-            await updateDoc(doc(db, "tasks", taskId), { completed: e.target.checked });
+            const isCompleted = e.target.checked;
+            const updateData = { completed: isCompleted };
+            if (isCompleted) {
+                updateData.completedAt = Date.now();
+            } else {
+                updateData.completedAt = null;
+            }
+            await updateDoc(doc(db, "tasks", taskId), updateData);
+            
+            // Guardar estadística para futuras gráficas
+            if (currentUser) {
+                const dateStr = new Date().toLocaleDateString('en-CA'); // Formato YYYY-MM-DD local
+                const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", dateStr);
+                await setDoc(statRef, { 
+                    completedTasks: increment(isCompleted ? 1 : -1) 
+                }, { merge: true });
+            }
         } catch (error) {
             console.error("Error al actualizar tarea:", error);
             e.target.checked = !e.target.checked;
