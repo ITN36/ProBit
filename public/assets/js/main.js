@@ -82,7 +82,8 @@ if (registroForm) {
         e.preventDefault(); // Evita que la página se recargue sola
 
         // 5. Sacamos los textos que el usuario escribió en las cajas
-        const name = document.getElementById('name').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
@@ -93,7 +94,8 @@ if (registroForm) {
 
             // 7. Firebase: Guarda el nombre en la base de datos (Firestore)
             await setDoc(doc(db, "usuarios", user.uid), {
-                nombre: name,
+                firstName: firstName,
+                lastName: lastName,
                 correo: email
             });
 
@@ -418,11 +420,24 @@ onAuthStateChanged(auth, async (user) => {
         }
         
         // Fetch User Profile
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userDoc = await getDoc(doc(db, "usuarios", user.uid));
         if (userDoc.exists()) {
             currentUserProfile = userDoc.data();
         } else {
             currentUserProfile = {};
+        }
+        
+        // Update Greeting
+        const greetingEl = document.getElementById('user-greeting');
+        if (greetingEl) {
+            let displayNombre = "Usuario";
+            if (currentUserProfile.firstName) {
+                displayNombre = currentUserProfile.firstName;
+            } else if (currentUserProfile.nombre) {
+                // Fallback para usuarios viejos
+                displayNombre = currentUserProfile.nombre.split(' ')[0];
+            }
+            greetingEl.textContent = `Hola, ${displayNombre}`;
         }
         
         setupSettingsModal();
@@ -970,7 +985,7 @@ function setupSettingsModal() {
         saveBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span>...';
         
         try {
-            await setDoc(doc(db, "users", currentUser.uid), { timezone: tz }, { merge: true });
+            await setDoc(doc(db, "usuarios", currentUser.uid), { timezone: tz }, { merge: true });
             currentUserProfile.timezone = tz;
             if (window.showToast) window.showToast("Zona horaria guardada", "success");
             
