@@ -846,9 +846,31 @@ function renderTask(taskId, task) {
         energyText = 'Media';
     }
     
+    let isOverdue = false;
+    if (!task.completed && task.date) {
+        const userTz = (currentUserProfile && currentUserProfile.timezone) 
+            ? currentUserProfile.timezone 
+            : Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const todayStr = getTzDateString(Date.now(), userTz);
+        
+        if (task.date < todayStr) {
+            isOverdue = true;
+        } else if (task.date === todayStr && task.time) {
+            const nowTimeStr = new Intl.DateTimeFormat('en-GB', { 
+                timeZone: userTz, 
+                hour: '2-digit', minute: '2-digit' 
+            }).format(new Date());
+            
+            if (task.time < nowTimeStr) {
+                isOverdue = true;
+            }
+        }
+    }
+    
     let metadataHtml = '';
     if (task.date || task.time) {
-        metadataHtml = `<div class="flex items-center gap-4 text-outline font-label-sm text-label-sm">`;
+        const metaColorClass = isOverdue ? "text-error font-bold" : "text-outline";
+        metadataHtml = `<div class="flex items-center gap-4 ${metaColorClass} font-label-sm text-label-sm">`;
         if (task.date) metadataHtml += `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">event</span> ${task.date}</span>`;
         if (task.time) metadataHtml += `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> ${task.time}</span>`;
         metadataHtml += `</div>`;
@@ -856,8 +878,12 @@ function renderTask(taskId, task) {
     
     const descHtml = task.description ? `<p class="font-body-md text-body-md text-on-surface-variant mt-1 line-clamp-2">${task.description}</p>` : '';
     
+    const baseCardClass = isOverdue 
+        ? "bg-error/5 border border-error/30 hover:border-error/50 hover:shadow-error/10" 
+        : "bg-white border border-outline-variant/30 hover:border-primary/20 hover:shadow-primary/5";
+    
     const taskHtml = `
-        <div class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 ${task.completed ? 'opacity-60' : ''}">
+        <div class="group flex items-center gap-4 p-5 rounded-[1.25rem] hover:shadow-lg transition-all duration-300 ${baseCardClass} ${task.completed ? 'opacity-60' : ''}">
             <div class="relative w-6 h-6 flex items-center justify-center flex-shrink-0">
                 <input class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all duration-200 cursor-pointer focus:ring-0 focus:ring-offset-0" type="checkbox" id="chk-${taskId}" ${task.completed ? 'checked' : ''}>
                 <span class="material-symbols-outlined absolute text-white text-[18px] pointer-events-none select-none transition-opacity duration-200 ${task.completed ? 'opacity-100' : 'opacity-0'}">check</span>
