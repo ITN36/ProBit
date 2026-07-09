@@ -335,14 +335,46 @@ if (taskCheckboxes.length > 0) {
         });
     });
 
-    // Input focus animation
-    const taskInput = document.querySelector('input[type="text"]');
-    if (taskInput) {
-        taskInput.addEventListener('focus', () => {
-            taskInput.parentElement.classList.add('scale-[1.01]');
-        });
-        taskInput.addEventListener('blur', () => {
-            taskInput.parentElement.classList.remove('scale-[1.01]');
+    // --- TASK MODAL LOGIC ---
+    const openTaskModalBtn = document.getElementById('open-task-modal-btn');
+    const closeTaskModalBtn = document.getElementById('close-task-modal-btn');
+    const cancelTaskBtn = document.getElementById('cancel-task-btn');
+    const taskModalOverlay = document.getElementById('task-modal-overlay');
+    const taskModalContent = document.getElementById('task-modal-content');
+
+    if (openTaskModalBtn && taskModalOverlay) {
+        const openModal = () => {
+            taskModalOverlay.classList.remove('hidden');
+            // trigger reflow
+            void taskModalOverlay.offsetWidth;
+            taskModalOverlay.classList.remove('opacity-0');
+            taskModalOverlay.classList.add('opacity-100');
+            
+            taskModalContent.classList.remove('scale-95', 'opacity-0');
+            taskModalContent.classList.add('scale-100', 'opacity-100');
+        };
+
+        const closeModal = () => {
+            taskModalOverlay.classList.remove('opacity-100');
+            taskModalOverlay.classList.add('opacity-0');
+            
+            taskModalContent.classList.remove('scale-100', 'opacity-100');
+            taskModalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                taskModalOverlay.classList.add('hidden');
+            }, 300);
+        };
+
+        openTaskModalBtn.addEventListener('click', openModal);
+        closeTaskModalBtn.addEventListener('click', closeModal);
+        cancelTaskBtn.addEventListener('click', closeModal);
+        
+        // Close on overlay click
+        taskModalOverlay.addEventListener('click', (e) => {
+            if (e.target === taskModalOverlay) {
+                closeModal();
+            }
         });
     }
 }
