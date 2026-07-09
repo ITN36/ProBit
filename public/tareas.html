@@ -102,10 +102,18 @@
                     class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
                     <span class="material-symbols-outlined">notifications</span>
                 </button>
-                <button aria-label="settings"
-                    class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
-                    <span class="material-symbols-outlined">settings</span>
-                </button>
+                <div class="relative">
+                    <button aria-label="settings"
+                        class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                    <!-- Settings Dropdown -->
+                    <div class="settings-dropdown absolute right-0 mt-2 w-56 bg-surface rounded-xl shadow-lg border border-outline-variant/30 py-2 hidden flex-col z-50 transform origin-top-right transition-all">
+                        <button class="btn-open-settings px-4 py-3 text-left font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors w-full flex items-center gap-3"><span class="material-symbols-outlined text-[20px] text-primary">public</span> Zona Horaria</button>
+                        <div class="h-px bg-outline-variant/20 my-1 w-full"></div>
+                        <button class="btn-logout px-4 py-3 text-left font-label-md text-label-md text-error hover:bg-error-container transition-colors w-full flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">logout</span> Cerrar sesión</button>
+                    </div>
+                </div>
             </div>
         </header>
         <!-- Tareas Canvas Area -->

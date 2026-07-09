@@ -70,7 +70,7 @@ if (openSidebarBtn && sidebar && sidebarOverlay) {
 import { auth, db } from './firebase.js';
 
 // 2. Traemos las funciones de Firebase para crear cuentas y guardar datos
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { doc, getDoc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // 3. Buscamos tu formulario en el HTML (recuerda que le pusiste id="registroForm")
@@ -968,8 +968,44 @@ function setupSettingsModal() {
     settingsModalOverlay = document.getElementById('settings-modal-overlay');
     settingsModalContent = document.getElementById('settings-modal-content');
     
+    // Toggle Dropdown logic
     document.querySelectorAll('[aria-label="settings"]').forEach(btn => {
-        btn.addEventListener('click', () => openSettingsModal(false));
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = btn.nextElementSibling;
+            if (dropdown && dropdown.classList.contains('settings-dropdown')) {
+                document.querySelectorAll('.settings-dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.add('hidden');
+                });
+                dropdown.classList.toggle('hidden');
+            }
+        });
+    });
+    
+    // Clic fuera para cerrar dropdown
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.settings-dropdown').forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+    });
+    
+    // Botones del dropdown
+    document.querySelectorAll('.btn-open-settings').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.settings-dropdown').forEach(d => d.classList.add('hidden'));
+            openSettingsModal(false);
+        });
+    });
+    
+    document.querySelectorAll('.btn-logout').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = "inicio-sesion.html";
+            } catch (error) {
+                console.error("Error cerrando sesión:", error);
+            }
+        });
     });
     
     document.getElementById('cancel-settings-btn').addEventListener('click', closeSettingsModal);
