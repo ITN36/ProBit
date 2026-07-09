@@ -71,7 +71,7 @@ import { auth, db } from './firebase.js';
 
 // 2. Traemos las funciones de Firebase para crear cuentas y guardar datos
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { doc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // 3. Buscamos tu formulario en el HTML (recuerda que le pusiste id="registroForm")
 const registroForm = document.getElementById('registroForm');
@@ -407,16 +407,36 @@ let currentUser = null;
 const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 const publicPages = ['inicio-sesion.html', 'registro.html', 'index.html', ''];
 
-onAuthStateChanged(auth, (user) => {
+let currentUserProfile = null;
+
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         if (publicPages.includes(currentPage)) {
             window.location.href = "dashboard.html";
-        } else if (currentPage === 'tareas.html') {
+            return;
+        }
+        
+        // Fetch User Profile
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+            currentUserProfile = userDoc.data();
+        } else {
+            currentUserProfile = {};
+        }
+        
+        setupSettingsModal();
+        
+        if (!currentUserProfile.timezone) {
+            openSettingsModal(true);
+        }
+
+        if (currentPage === 'tareas.html') {
             loadUserTasks(user.uid);
         }
     } else {
         currentUser = null;
+        currentUserProfile = null;
         if (!publicPages.includes(currentPage)) {
             window.location.href = "inicio-sesion.html";
         }
@@ -614,6 +634,22 @@ statusTabs.forEach(tab => {
     });
 });
 
+function getTzDateString(timestamp, tz) {
+    const d = new Date(timestamp);
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(d);
+    
+    let y, m, day;
+    for (const p of parts) {
+        if (p.type === 'year') y = p.value;
+        if (p.type === 'month') m = p.value;
+        if (p.type === 'day') day = p.value;
+    }
+    return `${y}-${m}-${day}`;
+}
+
 function renderFilteredTasks() {
     if (!tasksContainer || !emptyStateContainer) return;
     tasksContainer.innerHTML = '';
@@ -651,15 +687,15 @@ function renderFilteredTasks() {
     // Update completed today count
     const completedTodayCountEl = document.getElementById('completed-today-count');
     if (completedTodayCountEl) {
-        const todayMidnight = new Date();
-        todayMidnight.setHours(0, 0, 0, 0);
-        const todayMidnightMs = todayMidnight.getTime();
+        const userTz = (currentUserProfile && currentUserProfile.timezone) 
+            ? currentUserProfile.timezone 
+            : Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const todayStr = getTzDateString(Date.now(), userTz);
         
         const count = allUserTasks.filter(t => {
             if (!t.completed || !t.completedAt) return false;
-            // completedAt might be a timestamp or a number
             const completedTimeMs = t.completedAt.toMillis ? t.completedAt.toMillis() : t.completedAt;
-            return completedTimeMs >= todayMidnightMs;
+            return getTzDateString(completedTimeMs, userTz) === todayStr;
         }).length;
         completedTodayCountEl.textContent = count;
     }
@@ -677,9 +713,10 @@ function loadUserTasks(userId) {
     );
     
     onSnapshot(q, (snapshot) => {
-        const todayMidnight = new Date();
-        todayMidnight.setHours(0, 0, 0, 0);
-        const todayMidnightMs = todayMidnight.getTime();
+        const userTz = (currentUserProfile && currentUserProfile.timezone) 
+            ? currentUserProfile.timezone 
+            : Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const todayStr = getTzDateString(Date.now(), userTz);
         
         allUserTasks = [];
         snapshot.forEach(docSnap => {
@@ -689,7 +726,9 @@ function loadUserTasks(userId) {
             // Sweep: si está completada y fue antes de la medianoche de hoy, eliminar de Firebase
             if (data.completed && data.completedAt) {
                 const completedTimeMs = data.completedAt.toMillis ? data.completedAt.toMillis() : data.completedAt;
-                if (completedTimeMs < todayMidnightMs) {
+                const completedStr = getTzDateString(completedTimeMs, userTz);
+                
+                if (completedStr < todayStr) {
                     deleteDoc(doc(db, "tasks", id)).catch(err => console.error("Error sweep cleanup:", err));
                     return; // saltar para no añadirla a allUserTasks
                 }
@@ -794,7 +833,10 @@ function renderTask(taskId, task) {
             
             // Guardar estadística para futuras gráficas
             if (currentUser) {
-                const dateStr = new Date().toLocaleDateString('en-CA'); // Formato YYYY-MM-DD local
+                const userTz = (currentUserProfile && currentUserProfile.timezone) 
+                    ? currentUserProfile.timezone 
+                    : Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const dateStr = getTzDateString(Date.now(), userTz);
                 const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", dateStr);
                 await setDoc(statRef, { 
                     completedTasks: increment(isCompleted ? 1 : -1) 
@@ -861,4 +903,125 @@ if (saveTaskBtn) {
             saveTaskBtn.classList.remove('opacity-50');
         }
     });
+}
+
+// --- CONFIGURACIÓN DE ZONAS HORARIAS (SETTINGS MODAL) ---
+let isForcedSettings = false;
+let settingsModalOverlay = null;
+let settingsModalContent = null;
+
+function setupSettingsModal() {
+    // Evitar inyección múltiple
+    if (document.getElementById('settings-modal-overlay')) return;
+    
+    const modalHtml = `
+    <!-- Settings Modal -->
+    <div id="settings-modal-overlay" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <!-- Modal Content -->
+        <div id="settings-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-sm border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col">
+            <div class="p-8 space-y-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[24px]">public</span>
+                    </div>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Zona Horaria</h3>
+                </div>
+                <p class="font-body-md text-body-md text-on-surface-variant">Para calcular correctamente cuándo es medianoche, selecciona tu zona horaria local.</p>
+                <div class="flex flex-col space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface">Ubicación</label>
+                    <select id="timezone-select" class="w-full h-14 bg-surface-container-lowest border border-outline-variant rounded-xl pl-4 pr-12 font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-ellipsis overflow-hidden whitespace-nowrap">
+                        <option value="America/Mexico_City">Tiempo del Centro (CDMX, GDL, MTY)</option>
+                        <option value="America/Tijuana">Tiempo del Noroeste (Tijuana, Mexicali)</option>
+                        <option value="America/Mazatlan">Tiempo del Pacífico (Mazatlán, Sonora)</option>
+                        <option value="America/Cancun">Tiempo del Sureste (Cancún, Q.Roo)</option>
+                        <option value="America/Bogota">Colombia (Bogotá)</option>
+                        <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Footer Actions -->
+            <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                <button id="cancel-settings-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="save-settings-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all flex items-center justify-center gap-2">Guardar</button>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    settingsModalOverlay = document.getElementById('settings-modal-overlay');
+    settingsModalContent = document.getElementById('settings-modal-content');
+    
+    document.querySelectorAll('[aria-label="settings"]').forEach(btn => {
+        btn.addEventListener('click', () => openSettingsModal(false));
+    });
+    
+    document.getElementById('cancel-settings-btn').addEventListener('click', closeSettingsModal);
+    settingsModalOverlay.addEventListener('click', (e) => {
+        if (e.target === settingsModalOverlay && !isForcedSettings) closeSettingsModal();
+    });
+    
+    document.getElementById('save-settings-btn').addEventListener('click', async () => {
+        const tz = document.getElementById('timezone-select').value;
+        const saveBtn = document.getElementById('save-settings-btn');
+        
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span>...';
+        
+        try {
+            await setDoc(doc(db, "users", currentUser.uid), { timezone: tz }, { merge: true });
+            currentUserProfile.timezone = tz;
+            if (window.showToast) window.showToast("Zona horaria guardada", "success");
+            
+            // Si estábamos forzando (cuenta nueva) y estamos en tareas, ahora cargamos
+            if (isForcedSettings && currentPage === 'tareas.html') {
+                loadUserTasks(currentUser.uid);
+            }
+            
+            isForcedSettings = false; // Permitir cerrar
+            closeSettingsModal();
+        } catch (error) {
+            console.error("Error al guardar timezone:", error);
+            if (window.showToast) window.showToast("Error al guardar", "error");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Guardar';
+        }
+    });
+}
+
+function openSettingsModal(forced = false) {
+    isForcedSettings = forced;
+    const cancelBtn = document.getElementById('cancel-settings-btn');
+    if (forced) {
+        cancelBtn.style.display = 'none';
+    } else {
+        cancelBtn.style.display = 'block';
+    }
+    
+    const tzSelect = document.getElementById('timezone-select');
+    if (currentUserProfile && currentUserProfile.timezone) {
+        tzSelect.value = currentUserProfile.timezone;
+    } else {
+        const guessed = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const opts = Array.from(tzSelect.options).map(o => o.value);
+        if (opts.includes(guessed)) tzSelect.value = guessed;
+    }
+    
+    settingsModalOverlay.classList.remove('hidden');
+    void settingsModalOverlay.offsetWidth;
+    settingsModalOverlay.classList.remove('opacity-0');
+    settingsModalContent.classList.remove('opacity-0', 'scale-95');
+    settingsModalContent.classList.add('opacity-100', 'scale-100');
+}
+
+function closeSettingsModal() {
+    if (isForcedSettings) return;
+    settingsModalOverlay.classList.add('opacity-0');
+    settingsModalContent.classList.remove('opacity-100', 'scale-100');
+    settingsModalContent.classList.add('opacity-0', 'scale-95');
+    setTimeout(() => {
+        settingsModalOverlay.classList.add('hidden');
+    }, 300);
 }
