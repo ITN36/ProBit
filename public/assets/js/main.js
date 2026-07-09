@@ -71,7 +71,7 @@ import { auth, db } from './firebase.js';
 
 // 2. Traemos las funciones de Firebase para crear cuentas y guardar datos
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { doc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { doc, setDoc, collection, addDoc, onSnapshot, query, where, orderBy, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // 3. Buscamos tu formulario en el HTML (recuerda que le pusiste id="registroForm")
 const registroForm = document.getElementById('registroForm');
@@ -428,18 +428,63 @@ const tasksContainer = document.getElementById('tasks-container');
 const emptyStateContainer = document.getElementById('empty-state-container');
 const saveTaskBtn = document.getElementById('save-task-btn');
 const taskTitleInput = document.getElementById('task-title-input');
+const taskDescInput = document.getElementById('task-desc-input');
+const taskDescCount = document.getElementById('task-desc-count');
 const taskDateInput = document.getElementById('task-date-input');
 const taskTimeInput = document.getElementById('task-time-input');
 
 // Referencias del Modal
+const taskModalTitle = document.getElementById('task-modal-title');
 const taskModalOverlay = document.getElementById('task-modal-overlay');
 const taskModalContent = document.getElementById('task-modal-content');
 const openTaskModalBtn = document.getElementById('open-task-modal-btn');
 const closeTaskModalBtn = document.getElementById('close-task-modal-btn');
 const cancelTaskBtn = document.getElementById('cancel-task-btn');
 
-function openTaskModal() {
+// Referencias del Modal de Eliminación
+const deleteModalOverlay = document.getElementById('delete-modal-overlay');
+const deleteModalContent = document.getElementById('delete-modal-content');
+const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+let currentEditingTaskId = null;
+let taskIdToDelete = null;
+
+if (taskDescInput && taskDescCount) {
+    taskDescInput.addEventListener('input', (e) => {
+        taskDescCount.textContent = e.target.value.length;
+    });
+}
+
+function openTaskModal(taskId = null, taskData = null) {
     if (taskModalOverlay && taskModalContent) {
+        currentEditingTaskId = taskId;
+        
+        if (taskId && taskData) {
+            taskModalTitle.textContent = "Editar Tarea";
+            taskTitleInput.value = taskData.title || "";
+            if (taskDescInput) {
+                taskDescInput.value = taskData.description || "";
+                if (taskDescCount) taskDescCount.textContent = taskDescInput.value.length;
+            }
+            taskDateInput.value = taskData.date || "";
+            taskTimeInput.value = taskData.time || "";
+            
+            const radio = document.querySelector(`input[name="task-energy"][value="${taskData.energy || 'baja'}"]`);
+            if (radio) radio.checked = true;
+        } else {
+            taskModalTitle.textContent = "Nueva Tarea";
+            taskTitleInput.value = "";
+            if (taskDescInput) {
+                taskDescInput.value = "";
+                if (taskDescCount) taskDescCount.textContent = "0";
+            }
+            taskDateInput.value = "";
+            taskTimeInput.value = "";
+            const defaultRadio = document.querySelector('input[name="task-energy"][value="alta"]');
+            if (defaultRadio) defaultRadio.checked = true;
+        }
+
         taskModalOverlay.classList.remove('hidden');
         // trigger reflow
         void taskModalOverlay.offsetWidth;
@@ -460,13 +505,107 @@ function closeTaskModal() {
     }
 }
 
-if (openTaskModalBtn) openTaskModalBtn.addEventListener('click', openTaskModal);
+if (openTaskModalBtn) openTaskModalBtn.addEventListener('click', () => openTaskModal());
 if (closeTaskModalBtn) closeTaskModalBtn.addEventListener('click', closeTaskModal);
 if (cancelTaskBtn) cancelTaskBtn.addEventListener('click', closeTaskModal);
 if (taskModalOverlay) {
     taskModalOverlay.addEventListener('click', (e) => {
         if (e.target === taskModalOverlay) closeTaskModal();
     });
+}
+
+// Funciones del Modal de Eliminación
+function openDeleteModal(taskId) {
+    taskIdToDelete = taskId;
+    if (deleteModalOverlay && deleteModalContent) {
+        deleteModalOverlay.classList.remove('hidden');
+        void deleteModalOverlay.offsetWidth;
+        deleteModalOverlay.classList.remove('opacity-0');
+        deleteModalContent.classList.remove('opacity-0', 'scale-95');
+        deleteModalContent.classList.add('opacity-100', 'scale-100');
+    }
+}
+
+function closeDeleteModal() {
+    taskIdToDelete = null;
+    if (deleteModalOverlay && deleteModalContent) {
+        deleteModalOverlay.classList.add('opacity-0');
+        deleteModalContent.classList.remove('opacity-100', 'scale-100');
+        deleteModalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            deleteModalOverlay.classList.add('hidden');
+        }, 300);
+    }
+}
+
+if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+if (deleteModalOverlay) {
+    deleteModalOverlay.addEventListener('click', (e) => {
+        if (e.target === deleteModalOverlay) closeDeleteModal();
+    });
+}
+
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', async () => {
+        if (!taskIdToDelete) return;
+        
+        // Disable button while processing
+        const originalText = confirmDeleteBtn.innerHTML;
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.classList.add('opacity-50');
+        confirmDeleteBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Eliminando...';
+        
+        try {
+            await deleteDoc(doc(db, "tasks", taskIdToDelete));
+            if (window.showToast) window.showToast("Tarea eliminada", "success");
+            closeDeleteModal();
+        } catch (error) {
+            console.error("Error al eliminar tarea:", error);
+            if (window.showToast) window.showToast("Hubo un error al eliminar", "error");
+        } finally {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.classList.remove('opacity-50');
+            confirmDeleteBtn.innerHTML = originalText;
+        }
+    });
+}
+
+let allUserTasks = [];
+let currentFilter = 'todas';
+
+// Configurar Filtros
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Update active styles
+        filterBtns.forEach(b => {
+            b.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+            b.classList.add('text-on-surface-variant', 'hover:bg-surface');
+        });
+        const clickedBtn = e.target.closest('.filter-btn');
+        clickedBtn.classList.remove('text-on-surface-variant', 'hover:bg-surface');
+        clickedBtn.classList.add('bg-white', 'text-primary', 'shadow-sm');
+        
+        // Update filter state and re-render
+        currentFilter = clickedBtn.dataset.filter;
+        renderFilteredTasks();
+    });
+});
+
+function renderFilteredTasks() {
+    if (!tasksContainer || !emptyStateContainer) return;
+    tasksContainer.innerHTML = '';
+    
+    const filteredTasks = currentFilter === 'todas' 
+        ? allUserTasks 
+        : allUserTasks.filter(task => task.energy === currentFilter);
+        
+    if (filteredTasks.length === 0) {
+        emptyStateContainer.classList.remove('hidden');
+    } else {
+        emptyStateContainer.classList.add('hidden');
+        filteredTasks.forEach(task => renderTask(task.id, task));
+    }
 }
 
 // Cargar Tareas
@@ -481,26 +620,16 @@ function loadUserTasks(userId) {
     );
     
     onSnapshot(q, (snapshot) => {
-        tasksContainer.innerHTML = '';
-        if (snapshot.empty) {
-            emptyStateContainer.classList.remove('hidden');
-        } else {
-            emptyStateContainer.classList.add('hidden');
-            
-            // Extraer y ordenar en memoria (de más nuevo a más viejo)
-            const tasksArray = [];
-            snapshot.forEach(docSnap => tasksArray.push({ id: docSnap.id, ...docSnap.data() }));
-            
-            tasksArray.sort((a, b) => {
-                const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
-                const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
-                return timeB - timeA;
-            });
-            
-            tasksArray.forEach((task) => {
-                renderTask(task.id, task);
-            });
-        }
+        allUserTasks = [];
+        snapshot.forEach(docSnap => allUserTasks.push({ id: docSnap.id, ...docSnap.data() }));
+        
+        allUserTasks.sort((a, b) => {
+            const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+            const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+            return timeB - timeA;
+        });
+        
+        renderFilteredTasks();
     }, (error) => {
         console.error("Error al cargar tareas:", error);
     });
@@ -533,23 +662,48 @@ function renderTask(taskId, task) {
         metadataHtml += `</div>`;
     }
     
+    const descHtml = task.description ? `<p class="font-body-md text-body-md text-on-surface-variant mt-1 line-clamp-2">${task.description}</p>` : '';
+    
     const taskHtml = `
         <div class="group flex items-center gap-4 p-5 bg-white rounded-[1.25rem] border border-outline-variant/30 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 ${task.completed ? 'opacity-60' : ''}">
-            <div class="relative w-6 h-6 flex items-center justify-center">
+            <div class="relative w-6 h-6 flex items-center justify-center flex-shrink-0">
                 <input class="task-checkbox appearance-none w-6 h-6 border-2 border-outline-variant rounded-md checked:bg-primary checked:border-primary transition-all duration-200 cursor-pointer focus:ring-0 focus:ring-offset-0" type="checkbox" id="chk-${taskId}" ${task.completed ? 'checked' : ''}>
                 <span class="material-symbols-outlined absolute text-white text-[18px] pointer-events-none select-none transition-opacity duration-200 ${task.completed ? 'opacity-100' : 'opacity-0'}">check</span>
             </div>
-            <label class="flex-1 font-body-lg text-body-lg text-on-surface cursor-pointer ${task.completed ? 'line-through text-on-surface-variant' : ''}" for="chk-${taskId}">${task.title}</label>
+            <div class="flex-1 min-w-0">
+                <label class="font-body-lg text-body-lg text-on-surface cursor-pointer block ${task.completed ? 'line-through text-on-surface-variant' : ''}" for="chk-${taskId}">${task.title}</label>
+                ${descHtml}
+            </div>
             <div class="flex items-center gap-4">
-                <span class="px-3 py-1 ${energyColor} rounded-full font-label-sm text-label-sm flex items-center gap-1">
+                <span class="px-3 py-1 ${energyColor} rounded-full font-label-sm text-label-sm flex items-center gap-1 whitespace-nowrap">
                     <span class="material-symbols-outlined text-[14px]">${energyIcon}</span> ${energyText}
                 </span>
                 ${metadataHtml}
+                <button id="edit-${taskId}" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                </button>
+                <button id="delete-${taskId}" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
             </div>
         </div>
     `;
     
     tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+    
+    // Add edit listener
+    const editBtn = document.getElementById(`edit-${taskId}`);
+    if (editBtn) {
+        editBtn.addEventListener('click', () => openTaskModal(taskId, task));
+    }
+    
+    // Add delete listener
+    const deleteBtn = document.getElementById(`delete-${taskId}`);
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            openDeleteModal(taskId);
+        });
+    }
     
     // Checkbox listener
     document.getElementById(`chk-${taskId}`).addEventListener('change', async (e) => {
@@ -577,30 +731,37 @@ if (saveTaskBtn) {
         const energy = energyNode ? energyNode.value : 'baja';
         const date = taskDateInput.value;
         const time = taskTimeInput.value;
+        const description = taskDescInput ? taskDescInput.value.trim() : "";
         
         // Disable button while saving
         saveTaskBtn.disabled = true;
         saveTaskBtn.classList.add('opacity-50');
         
         try {
-            await addDoc(collection(db, "tasks"), {
-                title,
-                energy,
-                date,
-                time,
-                userId: currentUser.uid,
-                completed: false,
-                createdAt: serverTimestamp()
-            });
+            if (currentEditingTaskId) {
+                await updateDoc(doc(db, "tasks", currentEditingTaskId), {
+                    title,
+                    description,
+                    energy,
+                    date,
+                    time
+                });
+                if (window.showToast) window.showToast("Tarea actualizada exitosamente", "success");
+            } else {
+                await addDoc(collection(db, "tasks"), {
+                    title,
+                    description,
+                    energy,
+                    date,
+                    time,
+                    userId: currentUser.uid,
+                    completed: false,
+                    createdAt: serverTimestamp()
+                });
+                if (window.showToast) window.showToast("Tarea creada exitosamente", "success");
+            }
             
-            // Clean up and close modal
-            taskTitleInput.value = '';
-            taskDateInput.value = '';
-            taskTimeInput.value = '';
-            document.querySelector('input[name="task-energy"][value="alta"]').checked = true;
-            document.getElementById('close-task-modal-btn').click();
-            
-            if (window.showToast) window.showToast("Tarea creada exitosamente", "success");
+            closeTaskModal();
         } catch (error) {
             console.error("Error al guardar tarea:", error);
             if (window.showToast) window.showToast("Hubo un error al guardar", "error");
