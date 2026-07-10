@@ -17,7 +17,9 @@
 
 <body class="bg-background text-on-background antialiased flex overflow-hidden h-screen" data-mode="connect">
     <!-- Overlay para móvil -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-surface-variant/50 backdrop-blur-sm z-10 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+    <div id="sidebarOverlay"
+        class="fixed inset-0 bg-surface-variant/50 backdrop-blur-sm z-10 hidden opacity-0 transition-opacity duration-300 md:hidden">
+    </div>
 
     <!-- SideNavBar Component -->
     <nav id="sidebar"
@@ -96,7 +98,8 @@
                     <span class="material-symbols-outlined">menu</span>
                 </button>
                 <div>
-                    <h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim hidden md:block">
+                    <h2
+                        class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim hidden md:block">
                         Un paso a la vez es suficiente</h2>
                     <!-- Mobile brand -->
                     <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary md:hidden block">
@@ -105,7 +108,8 @@
             </div>
             <!-- Trailing Actions -->
             <div class="flex items-center gap-4">
-                <span id="user-greeting" class="font-body-md text-on-surface-variant hidden md:block">Hola, Usuario</span>
+                <span id="user-greeting" class="font-body-md text-on-surface-variant hidden md:block">Hola,
+                    Usuario</span>
                 <button aria-label="notifications"
                     class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
                     <span class="material-symbols-outlined">notifications</span>
@@ -116,10 +120,16 @@
                         <span class="material-symbols-outlined">settings</span>
                     </button>
                     <!-- Settings Dropdown -->
-                    <div class="settings-dropdown absolute right-0 mt-2 w-56 bg-surface rounded-xl shadow-lg border border-outline-variant/30 py-2 hidden flex-col z-50 transform origin-top-right transition-all">
-                        <button class="btn-open-settings px-4 py-3 text-left font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors w-full flex items-center gap-3"><span class="material-symbols-outlined text-[20px] text-primary">public</span> Zona Horaria</button>
+                    <div
+                        class="settings-dropdown absolute right-0 mt-2 w-56 bg-surface rounded-xl shadow-lg border border-outline-variant/30 py-2 hidden flex-col z-50 transform origin-top-right transition-all">
+                        <button
+                            class="btn-open-settings px-4 py-3 text-left font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors w-full flex items-center gap-3"><span
+                                class="material-symbols-outlined text-[20px] text-primary">public</span> Zona
+                            Horaria</button>
                         <div class="h-px bg-outline-variant/20 my-1 w-full"></div>
-                        <button class="btn-logout px-4 py-3 text-left font-label-md text-label-md text-error hover:bg-error-container transition-colors w-full flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">logout</span> Cerrar sesión</button>
+                        <button
+                            class="btn-logout px-4 py-3 text-left font-label-md text-label-md text-error hover:bg-error-container transition-colors w-full flex items-center gap-3"><span
+                                class="material-symbols-outlined text-[20px]">logout</span> Cerrar sesión</button>
                     </div>
                 </div>
                 <div
@@ -130,8 +140,9 @@
         </header>
 
         <!-- Dashboard Canvas -->
-        <div class="flex-1 flex flex-col p-container-padding max-w-[1120px] mx-auto w-full pb-32 md:pb-stack-lg space-y-12">
-            
+        <div
+            class="flex-1 flex flex-col p-container-padding max-w-[1120px] mx-auto w-full pb-32 md:pb-stack-lg space-y-12">
+
             <div class="hidden md:flex flex-col gap-2">
                 <h2 class="font-headline-lg text-headline-lg text-primary">Hábitos</h2>
                 <p class="text-body-lg text-on-surface-variant">Construye consistencia un bit a la vez.</p>
@@ -182,7 +193,8 @@
                         <span class="text-[10px] font-semibold text-on-surface-variant/50">DOM</span>
                         <div class="w-12 h-12 rounded-full bg-surface-container bit-circle"></div>
                     </div>
-                    <div class="ml-4 pl-4 md:ml-8 md:pl-8 border-l border-outline-variant/30 flex flex-col items-center min-w-max">
+                    <div
+                        class="ml-4 pl-4 md:ml-8 md:pl-8 border-l border-outline-variant/30 flex flex-col items-center min-w-max">
                         <span class="font-headline-lg text-headline-lg text-primary">3</span>
                         <span class="text-[10px] font-bold text-on-surface-variant uppercase">Días Seguidos</span>
                     </div>
@@ -195,7 +207,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Hábitos
                             de Hoy</h3>
-                        <button
+                        <button id="open-habit-modal-btn"
                             class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1 group">
                             <span class="material-symbols-outlined text-[18px]">add</span>
                             Añadir Hábito
@@ -241,7 +253,9 @@
                                 <div class="w-2.5 h-2.5 rounded-full bg-outline-variant/40 border-2 border-outline-variant/30"
                                     title="D"></div>
                             </div>
-                            <div class="flex items-center gap-2 ml-auto md:ml-4 border-l border-outline-variant/20 pl-4"><button
+                            <div
+                                class="flex items-center gap-2 ml-auto md:ml-4 border-l border-outline-variant/20 pl-4">
+                                <button
                                     class="p-1.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant transition-colors"><span
                                         class="material-symbols-outlined text-[18px]">edit</span></button><button
                                     class="p-1.5 rounded-full hover:bg-error/10 text-error transition-colors"><span
@@ -277,7 +291,9 @@
                                 <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
                                 <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
                             </div>
-                            <div class="flex items-center gap-2 ml-auto md:ml-4 border-l border-outline-variant/20 pl-4"><button
+                            <div
+                                class="flex items-center gap-2 ml-auto md:ml-4 border-l border-outline-variant/20 pl-4">
+                                <button
                                     class="p-1.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant transition-colors"><span
                                         class="material-symbols-outlined text-[18px]">edit</span></button><button
                                     class="p-1.5 rounded-full hover:bg-error/10 text-error transition-colors"><span
@@ -311,7 +327,9 @@
                                 <div class="w-1.5 h-1.5 rounded-full bg-primary/20"></div>
                                 <div class="w-1.5 h-1.5 rounded-full bg-primary/20"></div>
                             </div>
-                            <div class="flex items-center gap-2 ml-auto md:ml-4 border-l border-outline-variant/20 pl-4"><button
+                            <div
+                                class="flex items-center gap-2 ml-auto md:ml-4 border-l border-outline-variant/20 pl-4">
+                                <button
                                     class="p-1.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant transition-colors"><span
                                         class="material-symbols-outlined text-[18px]">edit</span></button><button
                                     class="p-1.5 rounded-full hover:bg-error/10 text-error transition-colors"><span
@@ -324,8 +342,7 @@
                 <!-- Section: Sidebar Widgets (Monthly Progress) -->
                 <aside class="space-y-stack-md">
                     <!-- Progress Monthly Card -->
-                    <div
-                        class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm">
+                    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
                                 Progreso Mensual</h3>
@@ -342,34 +359,90 @@
                             <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">S</span>
                             <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">D</span>
                             <!-- Day points -->
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-primary-container/30"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
-                            <div class="flex justify-center"><div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div></div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary-container/30"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
+                            </div>
                         </div>
                         <div class="p-4 bg-primary/5 rounded-lg flex items-center justify-between">
                             <span class="text-[11px] font-medium text-on-surface-variant">Tasa de éxito</span>
@@ -382,7 +455,8 @@
     </main>
 
     <!-- Mobile Bottom Navigation (Hidden on desktop) -->
-    <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-40 pb-safe transition-transform duration-300 transform translate-y-0">
+    <nav id="mobile-bottom-nav"
+        class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-40 pb-safe transition-transform duration-300 transform translate-y-0">
         <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="dashboard.html">
             <span class="material-symbols-outlined">dashboard</span>
             <span class="font-label-sm text-[10px]">Dashboard</span>
@@ -405,7 +479,163 @@
         </a>
     </nav>
 
+    <!-- Habit Modal Overlay -->
+    <div id="habit-modal-overlay"
+        class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <!-- Modal Content -->
+        <div id="habit-modal-content"
+            class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-lg border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header -->
+            <div
+                class="px-8 py-6 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-lowest">
+                <h3 id="habit-modal-title" class="font-headline-md text-headline-md text-primary font-bold">Nuevo Hábito
+                </h3>
+                <button id="close-habit-modal-btn"
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                <!-- Title Input -->
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Título del Hábito *</label>
+                    <input id="habit-title-input" type="text" placeholder="Ej. Meditar 5 min..."
+                        class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                </div>
+                <!-- Reason Input -->
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface-variant flex justify-between">
+                        Motivo / Descripción <span class="text-[10px] opacity-60 font-normal uppercase">(Máx 50
+                            carac.)</span>
+                    </label>
+                    <input id="habit-desc-input" type="text" placeholder="Construir paz mental..." maxlength="50"
+                        class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                </div>
+                <!-- Time & Moment -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[16px]">schedule</span> Hora <span
+                                class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
+                        <input id="habit-time-input" type="time"
+                            class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[16px]">light_mode</span> Momento</label>
+                        <select id="habit-moment-input"
+                            class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant appearance-none">
+                            <option value="">Cualquier momento</option>
+                            <option value="mañana">Mañana</option>
+                            <option value="tarde">Tarde</option>
+                            <option value="noche">Noche</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Energy Selection (Chips) -->
+                <div class="space-y-3">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Nivel de Energía <span
+                            class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer group relative">
+                            <input type="radio" name="habit-energy" value="alta" class="peer sr-only">
+                            <div
+                                class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">bolt</span> Alta
+                                </span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group relative">
+                            <input type="radio" name="habit-energy" value="media" class="peer sr-only">
+                            <div
+                                class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-secondary-container peer-checked:text-on-secondary-container peer-checked:border-secondary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">battery_charging_50</span> Media
+                                </span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group relative">
+                            <input type="radio" name="habit-energy" value="baja" class="peer sr-only">
+                            <div
+                                class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-tertiary-container peer-checked:text-on-tertiary-container peer-checked:border-tertiary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">battery_20</span> Baja
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <!-- Days Selection -->
+                <div class="space-y-3">
+                    <label
+                        class="font-label-md text-label-md text-on-surface-variant flex justify-between items-center">
+                        Días de la semana *
+                        <button type="button" id="habit-days-all-btn"
+                            class="text-[10px] text-primary font-bold uppercase hover:underline">Seleccionar
+                            Todos</button>
+                    </label>
+                    <div class="grid grid-cols-7 gap-1">
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="L" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                L</div>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="M" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                M</div>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="M" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                X</div>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="J" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                J</div>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="V" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                V</div>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="S" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                S</div>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="checkbox" name="habit-days" value="D" class="peer sr-only">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">
+                                D</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer Actions -->
+            <div
+                class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                <button id="cancel-habit-btn"
+                    class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="save-habit-btn"
+                    class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all">Crear
+                    Hábito</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="assets/js/main.js"></script>
-    <script src="habitos.js"></script>
+    <script src="assets/js/habitos.js"></script>
 </body>
+
 </html>
