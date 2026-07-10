@@ -1,0 +1,22 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fbf9f8;
+    color: #1b1c1c;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.bit-circle {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-checkbox:checked+label .check-mark {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
