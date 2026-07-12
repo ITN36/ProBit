@@ -655,7 +655,7 @@ function renderHabitCard(id, data, container) {
     newCard.innerHTML = habitCardHtml;
     
     newCard.addEventListener('click', (e) => {
-        if (e.target.closest('.custom-checkbox') || e.target.closest('button')) return;
+        if (e.target.closest('label[for^="chk-"]') || e.target.closest('.custom-checkbox') || e.target.closest('button')) return;
         selectedHabitId = id;
         renderHabitsList(); // Re-render to show selection ring and update streak UI
     });
