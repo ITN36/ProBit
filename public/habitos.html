@@ -204,107 +204,25 @@
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
                                 Progreso Mensual</h3>
-                            <span class="text-[11px] font-bold text-primary">MARZO</span>
+                            <div class="flex items-center gap-2">
+                                <button id="calendar-prev-btn" class="p-1 rounded hover:bg-surface-variant/50 text-on-surface-variant transition-colors flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                                </button>
+                                <span id="calendar-month-label" class="text-[11px] font-bold text-primary w-20 text-center">MARZO</span>
+                                <button id="calendar-next-btn" class="p-1 rounded hover:bg-surface-variant/50 text-on-surface-variant transition-colors flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                                </button>
+                            </div>
                         </div>
                         <!-- Mini Calendar Grid -->
-                        <div class="grid grid-cols-7 gap-3 mb-6">
-                            <!-- Header Days -->
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">L</span>
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">M</span>
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">X</span>
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">J</span>
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">V</span>
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">S</span>
-                            <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">D</span>
-                            <!-- Day points -->
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary-container/30"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></div>
-                            </div>
+                        <div id="monthly-calendar-grid" class="grid grid-cols-7 gap-3 mb-6">
+                            <!-- Calendar will be injected by JS -->
                         </div>
-                        <div class="p-4 bg-primary/5 rounded-lg flex items-center justify-between">
-                            <span class="text-[11px] font-medium text-on-surface-variant">Tasa de éxito</span>
-                            <span class="text-[14px] font-bold text-primary">82%</span>
+                        <div class="flex items-center justify-between mt-auto pt-6 border-t border-outline-variant/30">
+                            <div class="p-4 bg-primary/5 rounded-lg flex items-center justify-between w-full">
+                                <span class="text-[11px] font-medium text-on-surface-variant">Tasa de éxito</span>
+                                <span class="text-[14px] font-bold text-primary">82%</span>
+                            </div>
                         </div>
                     </div>
                 </aside>

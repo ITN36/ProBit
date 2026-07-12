@@ -5,6 +5,7 @@ let currentUser = null;
 let allHabits = [];
 let currentHabitFilter = 'pendientes';
 let selectedHabitId = null;
+let currentCalendarDate = new Date();
 
 // Helper to get YYYY-MM-DD for current week (Mon-Sun)
 function getCurrentWeekDates() {
@@ -127,38 +128,23 @@ document.addEventListener('DOMContentLoaded', () => {
             habitModalContent.classList.add('scale-100', 'opacity-100');
         };
 
-        window.closeModal = () => {
+        const closeModal = () => {
             habitModalOverlay.classList.remove('opacity-100');
             habitModalOverlay.classList.add('opacity-0');
             habitModalContent.classList.remove('scale-100', 'opacity-100');
             habitModalContent.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
                 habitModalOverlay.classList.add('hidden');
-            }, 300);
+            }, 200);
         };
 
-        openHabitModalBtn.addEventListener('click', () => {
-            document.getElementById('habit-modal-title').textContent = 'Nuevo Hábito';
-            delete habitModalContent.dataset.editingId;
-            // Clear inputs
-            document.getElementById('habit-title-input').value = '';
-            document.getElementById('habit-desc-input').value = '';
-            document.getElementById('habit-time-input').value = '';
-            document.getElementById('habit-moment-input').value = '';
-            const energyElement = document.querySelector('input[name="habit-energy"]:checked');
-            if(energyElement) energyElement.checked = false;
-            document.querySelectorAll('input[name="habit-days"]').forEach(cb => cb.checked = false);
-            if (habitDaysAllBtn) habitDaysAllBtn.textContent = 'Seleccionar Todos';
-            
-            window.openModal();
-        });
-
-        closeHabitModalBtn.addEventListener('click', window.closeModal);
-        cancelHabitBtn.addEventListener('click', window.closeModal);
+        openHabitModalBtn.addEventListener('click', window.openModal);
+        closeHabitModalBtn.addEventListener('click', closeModal);
+        cancelHabitBtn.addEventListener('click', closeModal);
         
         habitModalOverlay.addEventListener('click', (e) => {
             if (e.target === habitModalOverlay) {
-                window.closeModal();
+                closeModal();
             }
         });
         
@@ -224,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (window.showToast) window.showToast('Hábito creado', 'success');
                     }
                     
-                    window.closeModal();
+                    closeModal();
                 } catch (error) {
                     console.error("Error guardando hábito:", error);
                     if (window.showToast) window.showToast('Error al guardar: ' + error.message, 'error');
@@ -234,6 +220,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+    }
+    
+    // --- CALENDAR LOGIC ---
+    const prevBtn = document.getElementById('calendar-prev-btn');
+    const nextBtn = document.getElementById('calendar-next-btn');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        });
     }
 });
 
@@ -407,6 +409,84 @@ function updateGlobalStreakUI() {
     }).join('');
     
     containerEl.innerHTML = circlesHtml;
+    
+    // Update Monthly Calendar
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const gridEl = document.getElementById('monthly-calendar-grid');
+    const labelEl = document.getElementById('calendar-month-label');
+    if (!gridEl || !labelEl) return;
+    
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth(); // 0-11
+    
+    const monthNames = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+    labelEl.textContent = monthNames[month];
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const startDayIndex = firstDay === 0 ? 6 : firstDay - 1;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let html = `
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">L</span>
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">M</span>
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">X</span>
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">J</span>
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">V</span>
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">S</span>
+        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">D</span>
+    `;
+    
+    for (let i = 0; i < startDayIndex; i++) {
+        html += `<div></div>`;
+    }
+    
+    let assignedDays = [];
+    let completedDatesSet = new Set();
+    
+    if (selectedHabitId) {
+        const activeHabit = allHabits.find(h => h.id === selectedHabitId);
+        if (activeHabit) {
+            assignedDays = activeHabit.days || [];
+            (activeHabit.completedDates || []).forEach(d => completedDatesSet.add(d));
+        }
+    } else {
+        completedDatesSet = getGlobalCompletedDates();
+    }
+    
+    const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dateObj = new Date(year, month, i);
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        const dayOfWeekStr = dayMap[dateObj.getDay()];
+        
+        const isCompleted = completedDatesSet.has(dateStr);
+        let isAssigned = false;
+        
+        if (selectedHabitId) {
+            isAssigned = assignedDays.includes(dayOfWeekStr);
+        }
+        
+        let classes = '';
+        if (isCompleted) {
+            classes = 'bg-primary';
+        } else if (isAssigned) {
+            classes = 'bg-primary-container/30 border-primary/20';
+        } else {
+            classes = 'bg-outline-variant/40';
+        }
+        
+        html += `
+            <div class="flex justify-center" title="${dateStr}">
+                <div class="w-1.5 h-1.5 rounded-full ${classes}"></div>
+            </div>
+        `;
+    }
+    
+    gridEl.innerHTML = html;
 }
 
 function calculateStreak(habit) {
@@ -488,6 +568,9 @@ function updateStreakUI(habit) {
     }).join('');
     
     containerEl.innerHTML = circlesHtml;
+    
+    // Update Monthly Calendar
+    renderCalendar();
 }
 
 function renderHabitCard(id, data, container) {
