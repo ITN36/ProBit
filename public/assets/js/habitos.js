@@ -40,34 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, index * 100);
     });
 
-    const mainContent = document.querySelector('main');
-    const rachaSection = document.querySelector('section.animate-fade-in');
-    const progressCard = document.querySelector('aside.space-y-stack-md > div.bg-surface-container-lowest');
-
-    if (mainContent) {
-        mainContent.addEventListener('click', (e) => {
-            if (!e.target.closest('.bg-surface-container-lowest')) {
-                const habitCards = document.querySelectorAll('#habits-list > div.bg-surface-container-lowest');
-                habitCards.forEach(c => c.classList.remove('ring-2', 'ring-primary/30', 'bg-primary/5'));
-                if(rachaSection) {
-                    const rachaTitle = rachaSection.querySelector('h3');
-                    if(rachaTitle) rachaTitle.textContent = 'Tu Racha de Bits';
-                }
-                if(progressCard) {
-                    const successRate = progressCard.querySelector('.text-\\[14px\\]');
-                    if(successRate) successRate.textContent = '82%';
-                    const dots = progressCard.querySelectorAll('.grid-cols-7 div div');
-                    dots.forEach((dot, i) => {
-                        if (i > 18) {
-                            dot.className = 'w-1.5 h-1.5 rounded-full bg-outline-variant/40';
-                        } else {
-                            dot.className = 'w-1.5 h-1.5 rounded-full bg-primary';
-                        }
-                    });
-                }
+    // Clicking outside a habit card deselects the current habit
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.habit-card-wrapper')) {
+            if (selectedHabitId !== null) {
+                selectedHabitId = null;
+                renderHabitsList();
             }
-        });
-    }
+        }
+    });
 
     // --- HABIT TABS LOGIC ---
     const tabPendientes = document.getElementById('tab-habit-pendientes');
@@ -226,13 +207,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.getElementById('calendar-prev-btn');
     const nextBtn = document.getElementById('calendar-next-btn');
     if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Don't let the document listener reset selectedHabitId
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
             renderCalendar();
         });
     }
     if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Don't let the document listener reset selectedHabitId
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
             renderCalendar();
         });
@@ -259,7 +242,12 @@ function loadHabits() {
     onSnapshot(q, (snapshot) => {
         allHabits = [];
         snapshot.forEach((docSnap) => {
-            allHabits.push({ id: docSnap.id, ...docSnap.data() });
+            const data = docSnap.data();
+            // If the user forgot to select days when creating the habit, default to everyday
+            if (!data.days || data.days.length === 0) {
+                data.days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+            }
+            allHabits.push({ id: docSnap.id, ...data });
         });
         renderHabitsList();
     });
@@ -326,15 +314,16 @@ function renderHabitsList() {
         filteredHabits.forEach(habit => {
             renderHabitCard(habit.id, habit, listContainer);
         });
-        
-        // Update streak UI
-        const activeHabit = allHabits.find(h => h.id === selectedHabitId);
-        if (activeHabit) {
-            updateStreakUI(activeHabit);
-        } else {
-            updateGlobalStreakUI();
-        }
     }
+
+    // Always update streak UI and calendar after rendering (even if filteredHabits is empty)
+    const activeHabit = allHabits.find(h => h.id === selectedHabitId);
+    if (activeHabit) {
+        updateStreakUI(activeHabit);
+    } else {
+        updateGlobalStreakUI();
+    }
+    renderCalendar();
 }
 
 function getGlobalCompletedDates() {
@@ -409,54 +398,64 @@ function updateGlobalStreakUI() {
     }).join('');
     
     containerEl.innerHTML = circlesHtml;
-    
-    // Update Monthly Calendar
-    renderCalendar();
+    // renderCalendar() is called by renderHabitsList after this function returns
 }
 
+// renderCalendar always reads selectedHabitId from the global — no parameters needed.
+// This ensures it works correctly regardless of who calls it (card click, month nav, onSnapshot, etc.)
 function renderCalendar() {
     const gridEl = document.getElementById('monthly-calendar-grid');
     const labelEl = document.getElementById('calendar-month-label');
     if (!gridEl || !labelEl) return;
     
     const year = currentCalendarDate.getFullYear();
-    const month = currentCalendarDate.getMonth(); // 0-11
+    const month = currentCalendarDate.getMonth();
     
-    const monthNames = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+    const monthNames = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
     labelEl.textContent = monthNames[month];
     
+    // Always look up the selected habit directly from allHabits using the global selectedHabitId
+    const activeHabit = selectedHabitId ? allHabits.find(h => h.id === selectedHabitId) : null;
+    
+    // If no habit is selected, show placeholder
+    if (!activeHabit) {
+        let html = `
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">L</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">M</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">X</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">J</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">V</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">S</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">D</div>
+            <div class="col-span-7 py-6 flex items-center justify-center text-on-surface-variant/40 text-[11px] italic">Selecciona un hábito</div>
+        `;
+        gridEl.innerHTML = html;
+        const rateEl = document.getElementById('success-rate-text');
+        if (rateEl) rateEl.textContent = '-';
+        return;
+    }
+    
+    const assignedDays = activeHabit.days || [];
+    const completedDatesSet = new Set(activeHabit.completedDates || []);
+    const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
+    
     const firstDay = new Date(year, month, 1).getDay();
-    const startDayIndex = firstDay === 0 ? 6 : firstDay - 1;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startDayIndex = firstDay === 0 ? 6 : firstDay - 1;
     
     let html = `
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">L</span>
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">M</span>
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">X</span>
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">J</span>
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">V</span>
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">S</span>
-        <span class="text-[9px] font-bold text-on-surface-variant/40 text-center">D</span>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">L</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">M</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">X</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">J</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">V</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">S</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">D</div>
     `;
     
     for (let i = 0; i < startDayIndex; i++) {
         html += `<div></div>`;
     }
-    
-    let assignedDays = [];
-    let completedDatesSet = new Set();
-    
-    if (selectedHabitId) {
-        const activeHabit = allHabits.find(h => h.id === selectedHabitId);
-        if (activeHabit) {
-            assignedDays = activeHabit.days || [];
-            (activeHabit.completedDates || []).forEach(d => completedDatesSet.add(d));
-        }
-    } else {
-        completedDatesSet = getGlobalCompletedDates();
-    }
-    
-    const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
     
     for (let i = 1; i <= daysInMonth; i++) {
         const dateObj = new Date(year, month, i);
@@ -464,29 +463,46 @@ function renderCalendar() {
         const dayOfWeekStr = dayMap[dateObj.getDay()];
         
         const isCompleted = completedDatesSet.has(dateStr);
-        let isAssigned = false;
+        const isAssigned = assignedDays.includes(dayOfWeekStr);
         
-        if (selectedHabitId) {
-            isAssigned = assignedDays.includes(dayOfWeekStr);
-        }
-        
-        let classes = '';
+        let classes;
         if (isCompleted) {
-            classes = 'bg-primary';
+            classes = 'bg-primary border-primary border-2';
         } else if (isAssigned) {
-            classes = 'bg-primary-container/30 border-primary/20';
+            classes = 'border-2 border-primary bg-transparent';
         } else {
-            classes = 'bg-outline-variant/40';
+            classes = 'bg-surface-container-high border-transparent border-2';
         }
         
-        html += `
-            <div class="flex justify-center" title="${dateStr}">
-                <div class="w-1.5 h-1.5 rounded-full ${classes}"></div>
-            </div>
-        `;
+        html += `<div class="flex justify-center items-center" title="${dateStr}"><div class="w-4 h-4 rounded-full ${classes}"></div></div>`;
     }
     
     gridEl.innerHTML = html;
+    
+    // Calculate Tasa de éxito (only up to today)
+    const today = new Date();
+    let limitDate = daysInMonth;
+    if (year === today.getFullYear() && month === today.getMonth()) {
+        limitDate = today.getDate();
+    } else if (year > today.getFullYear() || (year === today.getFullYear() && month > today.getMonth())) {
+        limitDate = 0;
+    }
+    
+    let assignedCount = 0;
+    let completedCount = 0;
+    for (let i = 1; i <= limitDate; i++) {
+        const dateObj = new Date(year, month, i);
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        const dayOfWeekStr = dayMap[dateObj.getDay()];
+        if (assignedDays.includes(dayOfWeekStr)) {
+            assignedCount++;
+            if (completedDatesSet.has(dateStr)) completedCount++;
+        }
+    }
+    
+    const rate = assignedCount === 0 ? 0 : Math.round((completedCount / assignedCount) * 100);
+    const rateEl = document.getElementById('success-rate-text');
+    if (rateEl) rateEl.textContent = `${rate}%`;
 }
 
 function calculateStreak(habit) {
@@ -554,7 +570,7 @@ function updateStreakUI(habit) {
         } else if (isAssigned) {
             classes = 'bg-primary/20 border-2 border-dashed border-primary/40';
         } else {
-            classes = 'bg-surface-container';
+            classes = 'bg-surface-container border-2 border-transparent';
         }
         
         return `
@@ -568,9 +584,7 @@ function updateStreakUI(habit) {
     }).join('');
     
     containerEl.innerHTML = circlesHtml;
-    
-    // Update Monthly Calendar
-    renderCalendar();
+    // renderCalendar() is called by renderHabitsList after this function returns
 }
 
 function renderHabitCard(id, data, container) {
@@ -579,18 +593,11 @@ function renderHabitCard(id, data, container) {
     let energyHtml = '';
     if (energy) {
         let energyClass = '';
-        let energyText = '';
-        if (energy === 'alta') {
-            energyClass = 'bg-primary-container/30 text-on-primary-container';
-            energyText = 'Energía Alta';
-        } else if (energy === 'media') {
-            energyClass = 'bg-secondary-container/30 text-on-secondary-container';
-            energyText = 'Energía Media';
-        } else if (energy === 'baja') {
-            energyClass = 'bg-tertiary-container/30 text-on-tertiary-container';
-            energyText = 'Energía Baja';
-        }
-        energyHtml = `<span class="px-2 py-0.5 rounded-full ${energyClass} text-[10px] font-bold uppercase tracking-tighter">${energyText}</span>`;
+        if (energy === 'alta') energyClass = 'bg-primary-container text-on-primary-container';
+        else if (energy === 'media') energyClass = 'bg-surface-variant text-on-surface-variant';
+        else energyClass = 'bg-outline-variant/30 text-on-surface-variant';
+        
+        energyHtml = `<span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${energyClass}">Energía ${energy}</span>`;
     }
 
     let timeHtml = '';
@@ -607,22 +614,16 @@ function renderHabitCard(id, data, container) {
         const dateStr = weekDates[index];
         const isCompleted = completedDates.includes(dateStr);
         
-        let classes = '';
-        if (isAssigned && !isCompleted) {
-            // Asignado, pero NO completado (Verde clarito + Borde)
-            classes = 'bg-primary/20 border-primary border-2';
-        } else if (isAssigned && isCompleted) {
-            // Asignado y SI completado (Verde fuerte + Borde)
-            classes = 'bg-primary border-primary border-2';
-        } else if (!isAssigned && isCompleted) {
-            // NO asignado, pero SI completado (Verde fuerte sin Borde)
-            classes = 'bg-primary border-transparent border-2';
+        let circleClasses = '';
+        if (isCompleted) {
+            circleClasses = 'bg-primary border-primary';
+        } else if (isAssigned) {
+            circleClasses = 'border-primary bg-transparent';
         } else {
-            // NO asignado y NO completado (Gris/Opaco)
-            classes = 'bg-surface-container-high border-transparent border-2';
+            circleClasses = 'border-outline-variant/30 bg-surface-container-low';
         }
         
-        return `<div class="w-4 h-4 rounded-full ${classes} flex-shrink-0" title="${d}: ${dateStr}"></div>`;
+        return `<div class="w-3 h-3 rounded-full border flex-shrink-0 ${circleClasses}" title="${d}: ${dateStr}"></div>`;
     }).join('');
 
     const habitCardHtml = `
@@ -656,6 +657,7 @@ function renderHabitCard(id, data, container) {
     
     newCard.addEventListener('click', (e) => {
         if (e.target.closest('label[for^="chk-"]') || e.target.closest('.custom-checkbox') || e.target.closest('button')) return;
+        e.stopPropagation(); // Prevent document listener from resetting selectedHabitId
         selectedHabitId = id;
         renderHabitsList(); // Re-render to show selection ring and update streak UI
     });
@@ -716,30 +718,7 @@ function renderHabitCard(id, data, container) {
         });
     }
 
-    // Card click logic (monthly progress simulator)
-    newCard.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const allCards = document.querySelectorAll('#habits-list > div.bg-surface-container-lowest');
-        allCards.forEach(c => c.classList.remove('ring-2', 'ring-primary/30', 'bg-primary/5'));
-        newCard.classList.add('ring-2', 'ring-primary/30', 'bg-primary/5');
-        
-        const rachaSection = document.querySelector('section.animate-fade-in');
-        if(rachaSection) {
-            const rachaTitle = rachaSection.querySelector('h3');
-            if(rachaTitle) rachaTitle.textContent = `Racha: ${title}`;
-        }
-        
-        const progressCard = document.querySelector('aside.space-y-stack-md > div.bg-surface-container-lowest');
-        if(progressCard) {
-            const successRate = progressCard.querySelector('.text-\\[14px\\]');
-            if (successRate) successRate.textContent = '0%'; 
-            
-            const dots = progressCard.querySelectorAll('.grid-cols-7 div div');
-            dots.forEach((dot) => {
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-outline-variant/40';
-            });
-        }
-    });
+
 
     // Action buttons logic
     const actions = newCard.querySelectorAll('button');
