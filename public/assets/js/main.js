@@ -1156,11 +1156,21 @@ function loadUserTasks(userId) {
             const id = docSnap.id;
             
             // Sweep: si está completada y fue antes de la medianoche de hoy, eliminar de Firebase
-            if (data.completed && data.completedAt) {
-                const completedTimeMs = data.completedAt.toMillis ? data.completedAt.toMillis() : data.completedAt;
-                const completedStr = getTzDateString(completedTimeMs, userTz);
+            if (data.completed) {
+                let shouldDelete = false;
                 
-                if (completedStr < todayStr) {
+                if (data.completedAt) {
+                    const completedTimeMs = data.completedAt.toMillis ? data.completedAt.toMillis() : data.completedAt;
+                    const completedStr = getTzDateString(completedTimeMs, userTz);
+                    if (completedStr < todayStr) {
+                        shouldDelete = true;
+                    }
+                } else {
+                    // Si está completada pero no tiene completedAt (es antigua), la limpiamos también
+                    shouldDelete = true;
+                }
+                
+                if (shouldDelete) {
                     deleteDoc(doc(db, "usuarios", currentUser.uid, "tareas", id)).catch(err => console.error("Error sweep cleanup:", err));
                     return; // saltar para no añadirla a allUserTasks
                 }
