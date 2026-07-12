@@ -4,6 +4,26 @@ import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimest
 
 let currentUser = null;
 
+// Helper to get YYYY-MM-DD for current week (Mon-Sun)
+function getCurrentWeekDates() {
+    const dates = [];
+    const today = new Date();
+    let dayOfWeek = today.getDay();
+    dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Mon=0, Sun=6
+    
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - dayOfWeek);
+    
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        dates.push(`${year}-${month}-${day}`);
+    }
+    return dates;
+}
 document.addEventListener('DOMContentLoaded', () => {
     // Simulating loading entry
     const items = document.querySelectorAll('.animate-fade-in');
@@ -232,12 +252,30 @@ function renderHabitCard(id, data, container) {
     }
 
     const allDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-    const daysHtml = allDays.map(d => {
-        const isActive = days && days.includes(d);
-        const classes = isActive 
-            ? 'bg-primary border-primary' 
-            : 'bg-outline-variant/40 border-outline-variant/30';
-        return `<div class="w-2.5 h-2.5 rounded-full border-2 ${classes}" title="${d}"></div>`;
+    const weekDates = getCurrentWeekDates();
+    const completedDates = data.completedDates || [];
+    
+    const daysHtml = allDays.map((d, index) => {
+        const isAssigned = days && days.includes(d);
+        const dateStr = weekDates[index];
+        const isCompleted = completedDates.includes(dateStr);
+        
+        let classes = '';
+        if (isAssigned && !isCompleted) {
+            // Asignado, pero NO completado (Verde clarito + Borde)
+            classes = 'bg-primary/20 border-primary border-2';
+        } else if (isAssigned && isCompleted) {
+            // Asignado y SI completado (Verde fuerte + Borde)
+            classes = 'bg-primary border-primary border-2';
+        } else if (!isAssigned && isCompleted) {
+            // NO asignado, pero SI completado (Verde fuerte sin Borde)
+            classes = 'bg-primary border-transparent border-2';
+        } else {
+            // NO asignado y NO completado (Gris/Opaco)
+            classes = 'bg-surface-container-high border-transparent border-2';
+        }
+        
+        return `<div class="w-4 h-4 rounded-full ${classes} flex-shrink-0" title="${d}: ${dateStr}"></div>`;
     }).join('');
 
     const habitCardHtml = `
@@ -272,15 +310,54 @@ function renderHabitCard(id, data, container) {
 
     // Checkbox strikethrough logic
     const newCheckbox = newCard.querySelector('.custom-checkbox');
+    const todayDateObj = new Date();
+    const todayIndex = todayDateObj.getDay() === 0 ? 6 : todayDateObj.getDay() - 1;
+    const todayStr = weekDates[todayIndex];
+    
     if (newCheckbox) {
-        newCheckbox.addEventListener('change', function () {
+        // Set initial checkbox state
+        if (completedDates.includes(todayStr)) {
+            newCheckbox.checked = true;
             const label = newCard.querySelector('h4');
-            if (this.checked) {
-                label.classList.add('line-through', 'text-on-surface-variant/50');
+            if (label) label.classList.add('line-through', 'text-on-surface-variant/50');
+        }
+
+        newCheckbox.addEventListener('change', async function () {
+            const label = newCard.querySelector('h4');
+            const isNowChecked = this.checked;
+            
+            if (isNowChecked) {
+                if (label) label.classList.add('line-through', 'text-on-surface-variant/50');
                 newCard.style.transform = 'scale(0.99)';
                 setTimeout(() => newCard.style.transform = 'scale(1)', 100);
             } else {
-                label.classList.remove('line-through', 'text-on-surface-variant/50');
+                if (label) label.classList.remove('line-through', 'text-on-surface-variant/50');
+            }
+            
+            // Update Firestore
+            try {
+                let updatedCompletedDates = [...(data.completedDates || [])];
+                if (isNowChecked) {
+                    if (!updatedCompletedDates.includes(todayStr)) {
+                        updatedCompletedDates.push(todayStr);
+                    }
+                } else {
+                    updatedCompletedDates = updatedCompletedDates.filter(d => d !== todayStr);
+                }
+                
+                await updateDoc(doc(db, "usuarios", currentUser.uid, "habitos", id), {
+                    completedDates: updatedCompletedDates
+                });
+            } catch (err) {
+                console.error("Error updating completion status:", err);
+                if (window.showToast) window.showToast('Error al guardar progreso', 'error');
+                // Revert visual state on error
+                this.checked = !isNowChecked;
+                if (!isNowChecked && label) {
+                     label.classList.add('line-through', 'text-on-surface-variant/50');
+                } else if (label) {
+                     label.classList.remove('line-through', 'text-on-surface-variant/50');
+                }
             }
         });
     }

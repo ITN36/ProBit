@@ -762,12 +762,12 @@ function setupTaskModal() {
             
             try {
                 if (currentEditingTaskId) {
-                    await updateDoc(doc(db, "tasks", currentEditingTaskId), {
+                    await updateDoc(doc(db, "usuarios", currentUser.uid, "tareas", currentEditingTaskId), {
                         title, description, energy, date, time
                     });
                     if (window.showToast) window.showToast("Tarea actualizada exitosamente", "success");
                 } else {
-                    await addDoc(collection(db, "tasks"), {
+                    await addDoc(collection(db, "usuarios", currentUser.uid, "tareas"), {
                         title, description, energy, date, time,
                         userId: currentUser.uid, completed: false, createdAt: serverTimestamp()
                     });
@@ -795,7 +795,7 @@ function setupTaskModal() {
             confirmDeleteBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Eliminando...';
             
             try {
-                await deleteDoc(doc(db, "tasks", taskIdToDelete));
+                await deleteDoc(doc(db, "usuarios", currentUser.uid, "tareas", taskIdToDelete));
                 if (window.showToast) window.showToast("Tarea eliminada", "success");
                 closeDeleteModal();
             } catch (error) {
@@ -1055,10 +1055,10 @@ function renderDashboardTasks() {
             try {
                 const taskId = e.target.dataset.id;
                 const updateData = { completed: true, completedAt: Date.now() };
-                await updateDoc(doc(db, "tasks", taskId), updateData);
+                await updateDoc(doc(db, "usuarios", currentUser.uid, "tareas", taskId), updateData);
                 
                 if (currentUser) {
-                    const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", todayStr);
+                    const statRef = doc(db, "usuarios", currentUser.uid, "stats", todayStr);
                     await setDoc(statRef, { completedTasks: increment(1) }, { merge: true });
                 }
             } catch (error) {
@@ -1136,7 +1136,7 @@ function loadUserTasks(userId) {
     // NOTA: Removemos orderBy("createdAt", "desc") para evitar el error de Firebase que pide crear un índice.
     // Ordenaremos los resultados directamente en memoria.
     const q = query(
-        collection(db, "tasks"), 
+        collection(db, "usuarios", currentUser.uid, "tareas"), 
         where("userId", "==", userId)
     );
     
@@ -1157,7 +1157,7 @@ function loadUserTasks(userId) {
                 const completedStr = getTzDateString(completedTimeMs, userTz);
                 
                 if (completedStr < todayStr) {
-                    deleteDoc(doc(db, "tasks", id)).catch(err => console.error("Error sweep cleanup:", err));
+                    deleteDoc(doc(db, "usuarios", currentUser.uid, "tareas", id)).catch(err => console.error("Error sweep cleanup:", err));
                     return; // saltar para no añadirla a allUserTasks
                 }
             }
@@ -1283,7 +1283,7 @@ function renderTask(taskId, task) {
             } else {
                 updateData.completedAt = null;
             }
-            await updateDoc(doc(db, "tasks", taskId), updateData);
+            await updateDoc(doc(db, "usuarios", currentUser.uid, "tareas", taskId), updateData);
             
             // Guardar estadística para futuras gráficas
             if (currentUser) {
@@ -1291,7 +1291,7 @@ function renderTask(taskId, task) {
                     ? currentUserProfile.timezone 
                     : Intl.DateTimeFormat().resolvedOptions().timeZone;
                 const dateStr = getTzDateString(Date.now(), userTz);
-                const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", dateStr);
+                const statRef = doc(db, "usuarios", currentUser.uid, "stats", dateStr);
                 await setDoc(statRef, { 
                     completedTasks: increment(isCompleted ? 1 : -1) 
                 }, { merge: true });
@@ -1352,7 +1352,7 @@ if (saveTaskBtn) {
         
         try {
             if (currentEditingTaskId) {
-                await updateDoc(doc(db, "tasks", currentEditingTaskId), {
+                await updateDoc(doc(db, "usuarios", currentUser.uid, "tareas", currentEditingTaskId), {
                     title,
                     description,
                     energy,
@@ -1361,7 +1361,7 @@ if (saveTaskBtn) {
                 });
                 if (window.showToast) window.showToast("Tarea actualizada exitosamente", "success");
             } else {
-                await addDoc(collection(db, "tasks"), {
+                await addDoc(collection(db, "usuarios", currentUser.uid, "tareas"), {
                     title,
                     description,
                     energy,
@@ -1593,14 +1593,14 @@ function setupPomodoroUI() {
                     updateData.completedAt = null;
                 }
                 
-                await updateDoc(doc(db, "tasks", activePomodoroTaskId), updateData);
+                await updateDoc(doc(db, "usuarios", currentUser.uid, "tareas", activePomodoroTaskId), updateData);
                 
                 if (currentUser && isCompleted) {
                     const userTz = (currentUserProfile && currentUserProfile.timezone) 
                         ? currentUserProfile.timezone 
                         : Intl.DateTimeFormat().resolvedOptions().timeZone;
                     const dateStr = getTzDateString(Date.now(), userTz);
-                    const statRef = doc(db, "userStats", currentUser.uid, "dailyStats", dateStr);
+                    const statRef = doc(db, "usuarios", currentUser.uid, "stats", dateStr);
                     await setDoc(statRef, { 
                         completedTasks: increment(1) 
                     }, { merge: true });
