@@ -137,21 +137,20 @@
             </h2>
             <!-- Summary Row -->
             <section aria-label="Resumen diario" class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
-                <!-- Streak Card -->
-                <div
-                    class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-6 card-hover">
-                    <div
-                        class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
+                <!-- Habit Streak Card (Live) -->
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-6 card-hover">
+                    <div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
                         <span class="material-symbols-outlined filled text-3xl">local_fire_department</span>
                     </div>
                     <div>
-                        <p class="font-label-md text-label-md text-on-surface-variant mb-1">Racha actual</p>
-                        <h3 class="font-headline-lg text-headline-lg text-on-background">15 días</h3>
+                        <p class="font-label-md text-label-md text-on-surface-variant mb-1">Racha de Hábitos</p>
+                        <h3 class="font-headline-lg text-headline-lg text-on-background">
+                            <span id="dashboard-habit-streak">0</span> días seguidos
+                        </h3>
                     </div>
                 </div>
                 <!-- Tasks Completed Card -->
-                <div
-                    class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-6 card-hover">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-6 card-hover">
                     <div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
                         <span class="material-symbols-outlined filled text-3xl">task_alt</span>
                     </div>
@@ -163,48 +162,24 @@
             </section>
             <!-- Main Split Layout -->
             <section aria-label="Actividades del día" class="grid grid-cols-1 lg:grid-cols-12 gap-stack-md">
-                <!-- Left Column: Habits -->
-                <div class="lg:col-span-5 bg-surface-container-low rounded-xl p-6 border border-surface-variant">
-                    <div class="flex items-center justify-between mb-6">
+                <!-- Left Column: Habits (Live) -->
+                <div class="lg:col-span-5 bg-surface-container-low rounded-xl p-6 border border-surface-variant flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
                         <h3 class="font-headline-md text-headline-md text-on-background">Hábitos del día</h3>
-                        <span
-                            class="font-label-sm text-label-sm px-3 py-1 bg-surface-container-highest rounded-full text-on-surface-variant">3
-                            restantes</span>
+                        <button id="dashboard-add-habit-btn"
+                            class="flex items-center gap-1.5 font-label-md text-label-md text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">add</span>
+                            <span>Añadir</span>
+                        </button>
                     </div>
-                    <ul class="flex flex-col gap-4">
-                        <!-- Habit Item 1 -->
-                        <li
-                            class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-lg border border-outline-variant card-hover">
-                            <input aria-label="Completar Meditación" class="probit-checkbox" id="habit1"
-                                type="checkbox">
-                            <label class="flex-1 cursor-pointer" for="habit1">
-                                <span class="font-body-lg text-body-lg text-on-background block">Meditación</span>
-                                <span class="font-label-sm text-label-sm text-on-surface-variant">10 minutos · Calma
-                                    mental</span>
-                            </label>
-                        </li>
-                        <!-- Habit Item 2 -->
-                        <li
-                            class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-lg border border-outline-variant card-hover">
-                            <input aria-label="Completar Hidratación" class="probit-checkbox" id="habit2"
-                                type="checkbox">
-                            <label class="flex-1 cursor-pointer" for="habit2">
-                                <span class="font-body-lg text-body-lg text-on-background block">Hidratación</span>
-                                <span class="font-label-sm text-label-sm text-on-surface-variant">2 litros
-                                    diarios</span>
-                            </label>
-                        </li>
-                        <!-- Habit Item 3 -->
-                        <li
-                            class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-lg border border-outline-variant card-hover">
-                            <input aria-label="Completar Lectura" class="probit-checkbox" id="habit3" type="checkbox">
-                            <label class="flex-1 cursor-pointer" for="habit3">
-                                <span class="font-body-lg text-body-lg text-on-background block">Lectura</span>
-                                <span class="font-label-sm text-label-sm text-on-surface-variant">1 capítulo ·
-                                    Minimalismo Digital</span>
-                            </label>
-                        </li>
+                    <!-- Habit list (dynamic) -->
+                    <ul id="dashboard-habits-list" class="flex flex-col gap-3 flex-1">
+                        <li class="text-on-surface-variant/50 text-sm italic text-center py-8">Cargando hábitos...</li>
                     </ul>
+                    <!-- Link to full habits view -->
+                    <a href="habitos.html" class="text-center font-label-sm text-label-sm text-primary hover:underline mt-2">
+                        Ver todos los hábitos →
+                    </a>
                 </div>
                 <!-- Right Column: Pending Tasks -->
                 <div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant">
@@ -249,7 +224,103 @@
             <span class="font-label-sm text-[10px]">Brain Dump</span>
         </a>
     </nav>
+
+    <!-- ===== HABIT MODAL ===== -->
+    <div id="dash-habit-modal-overlay"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4">
+        <div id="dash-habit-modal-content"
+            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] transform scale-95 opacity-0 transition-all duration-200">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-8 py-6 border-b border-outline-variant/20">
+                <h2 id="dash-habit-modal-title" class="font-headline-sm text-headline-sm text-on-surface font-bold">Nuevo Hábito</h2>
+                <button id="dash-close-habit-modal-btn"
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Título del Hábito *</label>
+                    <input id="dash-habit-title-input" type="text" placeholder="Ej. Meditar 5 min..."
+                        class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                </div>
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md text-on-surface-variant flex justify-between">
+                        Motivo / Descripción <span class="text-[10px] opacity-60 font-normal uppercase">(Máx 50 carac.)</span>
+                    </label>
+                    <input id="dash-habit-desc-input" type="text" placeholder="Construir paz mental..." maxlength="50"
+                        class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> Hora <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
+                        <input id="dash-habit-time-input" type="time"
+                            class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">light_mode</span> Momento</label>
+                        <select id="dash-habit-moment-input"
+                            class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface-variant appearance-none">
+                            <option value="">Cualquier momento</option>
+                            <option value="mañana">Mañana</option>
+                            <option value="tarde">Tarde</option>
+                            <option value="noche">Noche</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Nivel de Energía <span class="text-[10px] opacity-60 font-normal uppercase">(Opcional)</span></label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="dash-habit-energy" value="alta" class="peer sr-only">
+                            <div class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-[18px]">bolt</span> Alta</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="dash-habit-energy" value="media" class="peer sr-only">
+                            <div class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-secondary-container peer-checked:text-on-secondary-container peer-checked:border-secondary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-[18px]">battery_charging_50</span> Media</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="dash-habit-energy" value="baja" class="peer sr-only">
+                            <div class="w-full text-center py-3 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-on-surface peer-checked:bg-tertiary-container peer-checked:text-on-tertiary-container peer-checked:border-tertiary-container transition-all hover:bg-surface-container">
+                                <span class="font-label-md text-label-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-[18px]">battery_20</span> Baja</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <label class="font-label-md text-label-md text-on-surface-variant flex justify-between items-center">
+                        Días de la semana *
+                        <button type="button" id="dash-habit-days-all-btn" class="text-[10px] text-primary font-bold uppercase hover:underline">Seleccionar Todos</button>
+                    </label>
+                    <div class="grid grid-cols-7 gap-1">
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="L" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">L</div></label>
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="M" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">M</div></label>
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="X" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">M</div></label>
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="J" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">J</div></label>
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="V" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">V</div></label>
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="S" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">S</div></label>
+                        <label class="cursor-pointer text-center"><input type="checkbox" name="dash-habit-days" value="D" class="peer sr-only"><div class="w-10 h-10 mx-auto rounded-full border border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container">D</div></label>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3 rounded-b-2xl">
+                <button id="dash-cancel-habit-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="dash-save-habit-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all">Crear Hábito</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="assets/js/main.js"></script>
+</body>
+
+</html>
+
 </body>
 
 </html>

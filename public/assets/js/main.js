@@ -450,6 +450,10 @@ onAuthStateChanged(auth, async (user) => {
         if (currentPage === 'tareas.html' || currentPage === 'dashboard.html' || currentPage === 'pomodoro.html') {
             loadUserTasks(user.uid);
         }
+        
+        if (currentPage === 'dashboard.html') {
+            loadDashboardHabits(user.uid);
+        }
     } else {
         currentUser = null;
         currentUserProfile = null;
@@ -1755,4 +1759,283 @@ function renderPomodoroTask() {
 // Inicializar UI de Pomodoro al final
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(setupPomodoroUI, 500);
+});
+
+// --- DASHBOARD HABITS LOGIC ---
+let allDashboardHabits = [];
+
+function loadDashboardHabits(uid) {
+    const q = query(collection(db, "usuarios", uid, "habitos"));
+    onSnapshot(q, (snapshot) => {
+        allDashboardHabits = [];
+        snapshot.forEach(docSnap => {
+            allDashboardHabits.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        renderDashboardHabits();
+        updateDashboardGlobalStreak();
+    }, (error) => {
+        console.error("Error cargando hábitos en dashboard:", error);
+    });
+}
+
+function getTzDateStringLocal(dateOrMs, tz) {
+    if (!tz) tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let ms = typeof dateOrMs === 'number' ? dateOrMs : dateOrMs.getTime();
+    let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+    const parts = formatter.formatToParts(new Date(ms));
+    const yr = parts.find(p => p.type === 'year').value;
+    const mo = parts.find(p => p.type === 'month').value;
+    const da = parts.find(p => p.type === 'day').value;
+    return `${yr}-${mo}-${da}`;
+}
+
+function renderDashboardHabits() {
+    const listContainer = document.getElementById('dashboard-habits-list');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+
+    const userTz = (currentUserProfile && currentUserProfile.timezone) ? currentUserProfile.timezone : Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = getTzDateStringLocal(Date.now(), userTz);
+    
+    // Map Javascript getDay() (0=Sun, 1=Mon... 6=Sat) to our days array
+    const daysMap = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+    const dayOfWeek = daysMap[new Date().getDay()];
+
+    // Filtramos hábitos de hoy
+    const todaysHabits = allDashboardHabits.filter(h => {
+        // En caso de que el array de days esté vacío por error, asumimos todos los días
+        const habitDays = h.days && h.days.length > 0 ? h.days : ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+        return habitDays.includes(dayOfWeek);
+    });
+
+    const pendingTodaysHabits = todaysHabits.filter(h => {
+        return !(h.completedDates && h.completedDates.includes(todayStr));
+    });
+
+    if (pendingTodaysHabits.length === 0) {
+        if (todaysHabits.length > 0) {
+            listContainer.innerHTML = `
+                <li class="text-center p-8 text-on-surface-variant flex flex-col items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl mb-2 opacity-50 text-secondary">local_fire_department</span>
+                    <p class="font-body-md text-body-md">¡Excelente! Has completado todos tus hábitos de hoy.</p>
+                </li>
+            `;
+        } else {
+            listContainer.innerHTML = '<li class="text-on-surface-variant/50 text-sm italic text-center py-8">No tienes hábitos programados para hoy.</li>';
+        }
+        return;
+    }
+
+    pendingTodaysHabits.forEach((habit, index) => {
+        let metaText = [];
+        if (habit.time) metaText.push(habit.time);
+        if (habit.moment) metaText.push(habit.moment.charAt(0).toUpperCase() + habit.moment.slice(1));
+        if (habit.desc) metaText.push(habit.desc);
+        
+        const li = document.createElement('li');
+        li.className = 'flex items-center gap-4 p-4 bg-surface-container-lowest rounded-lg border border-outline-variant card-hover transition-all duration-300 transform';
+        li.innerHTML = `
+            <input aria-label="Completar ${habit.title}" class="probit-checkbox" id="dash-habit-${index}" type="checkbox">
+            <label class="flex-1 cursor-pointer" for="dash-habit-${index}">
+                <span class="font-body-lg text-body-lg text-on-background block transition-all">${habit.title}</span>
+                ${metaText.length > 0 ? `<span class="font-label-sm text-label-sm text-on-surface-variant">${metaText.join(' · ')}</span>` : ''}
+            </label>
+        `;
+        
+        const checkbox = li.querySelector('input');
+        checkbox.addEventListener('change', async (e) => {
+            const checked = e.target.checked;
+            if (checked) {
+                // Add exit animation class before hitting the database
+                li.classList.add('opacity-0', 'scale-95');
+                const habitRef = doc(db, 'usuarios', currentUser.uid, 'habitos', habit.id);
+                try {
+                    // Update array manually since we don't have arrayUnion imported
+                    const updatedCompletedDates = [...(habit.completedDates || [])];
+                    if (!updatedCompletedDates.includes(todayStr)) {
+                        updatedCompletedDates.push(todayStr);
+                    }
+                    await updateDoc(habitRef, {
+                        completedDates: updatedCompletedDates
+                    });
+                } catch (err) {
+                    console.error("Error actualizando hábito:", err);
+                    li.classList.remove('opacity-0', 'scale-95');
+                    e.target.checked = false; // revert
+                }
+            }
+        });
+        
+        listContainer.appendChild(li);
+    });
+}
+
+function updateDashboardGlobalStreak() {
+    const streakEl = document.getElementById('dashboard-habit-streak');
+    if (!streakEl) return;
+    
+    if (allDashboardHabits.length === 0) {
+        streakEl.textContent = '0';
+        return;
+    }
+
+    const userTz = (currentUserProfile && currentUserProfile.timezone) ? currentUserProfile.timezone : Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = getTzDateStringLocal(Date.now(), userTz);
+    const msInDay = 86400000;
+    
+    let activeDaysMap = {};
+    const dateLimit = new Date();
+    dateLimit.setDate(dateLimit.getDate() - 365);
+    
+    allDashboardHabits.forEach(habit => {
+        if (!habit.completedDates || habit.completedDates.length === 0) return;
+        habit.completedDates.forEach(dateStr => {
+            if (new Date(dateStr) >= dateLimit) {
+                activeDaysMap[dateStr] = true;
+            }
+        });
+    });
+    
+    const uniqueDates = Object.keys(activeDaysMap).sort((a, b) => new Date(b) - new Date(a));
+    if (uniqueDates.length === 0) {
+        streakEl.textContent = '0';
+        return;
+    }
+    
+    let currentStreak = 0;
+    let expectedDate = new Date(todayStr + "T00:00:00");
+    
+    if (!uniqueDates.includes(todayStr)) {
+        const yesterday = new Date(expectedDate.getTime() - msInDay);
+        const yStr = getTzDateStringLocal(yesterday, userTz);
+        if (!uniqueDates.includes(yStr)) {
+            streakEl.textContent = '0';
+            return;
+        }
+        expectedDate = yesterday;
+    }
+    
+    for (const ds of uniqueDates) {
+        const d = new Date(ds + "T00:00:00");
+        if (d.getTime() === expectedDate.getTime()) {
+            currentStreak++;
+            expectedDate = new Date(expectedDate.getTime() - msInDay);
+        } else if (d.getTime() < expectedDate.getTime()) {
+            break;
+        }
+    }
+    
+    streakEl.textContent = currentStreak;
+}
+
+// DASHBOARD HABIT MODAL LOGIC
+document.addEventListener('DOMContentLoaded', () => {
+    const dashOpenHabitBtn = document.getElementById('dashboard-add-habit-btn');
+    const dashHabitModalOverlay = document.getElementById('dash-habit-modal-overlay');
+    const dashHabitModalContent = document.getElementById('dash-habit-modal-content');
+    const dashCloseHabitModalBtn = document.getElementById('dash-close-habit-modal-btn');
+    const dashCancelHabitBtn = document.getElementById('dash-cancel-habit-btn');
+    const dashSaveHabitBtn = document.getElementById('dash-save-habit-btn');
+    const dashHabitDaysAllBtn = document.getElementById('dash-habit-days-all-btn');
+    
+    if (dashOpenHabitBtn && dashHabitModalOverlay) {
+        const openDashModal = () => {
+            // Reset fields
+            document.getElementById('dash-habit-title-input').value = '';
+            document.getElementById('dash-habit-desc-input').value = '';
+            document.getElementById('dash-habit-time-input').value = '';
+            document.getElementById('dash-habit-moment-input').value = '';
+            const energyRadios = document.querySelectorAll('input[name="dash-habit-energy"]');
+            energyRadios.forEach(r => r.checked = false);
+            const daysCheckboxes = document.querySelectorAll('input[name="dash-habit-days"]');
+            daysCheckboxes.forEach(cb => cb.checked = false);
+            if (dashHabitDaysAllBtn) dashHabitDaysAllBtn.textContent = 'Seleccionar Todos';
+            
+            dashHabitModalOverlay.classList.remove('hidden');
+            void dashHabitModalOverlay.offsetWidth;
+            dashHabitModalOverlay.classList.remove('opacity-0');
+            dashHabitModalOverlay.classList.add('opacity-100');
+            dashHabitModalContent.classList.remove('scale-95', 'opacity-0');
+            dashHabitModalContent.classList.add('scale-100', 'opacity-100');
+        };
+        
+        const closeDashModal = () => {
+            dashHabitModalOverlay.classList.remove('opacity-100');
+            dashHabitModalOverlay.classList.add('opacity-0');
+            dashHabitModalContent.classList.remove('scale-100', 'opacity-100');
+            dashHabitModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                dashHabitModalOverlay.classList.add('hidden');
+            }, 200);
+        };
+        
+        dashOpenHabitBtn.addEventListener('click', openDashModal);
+        dashCloseHabitModalBtn.addEventListener('click', closeDashModal);
+        dashCancelHabitBtn.addEventListener('click', closeDashModal);
+        
+        dashHabitModalOverlay.addEventListener('click', (e) => {
+            if (e.target === dashHabitModalOverlay) {
+                closeDashModal();
+            }
+        });
+        
+        if (dashHabitDaysAllBtn) {
+            dashHabitDaysAllBtn.addEventListener('click', () => {
+                const dayCheckboxes = document.querySelectorAll('input[name="dash-habit-days"]');
+                const allChecked = Array.from(dayCheckboxes).every(cb => cb.checked);
+                dayCheckboxes.forEach(cb => cb.checked = !allChecked);
+                dashHabitDaysAllBtn.textContent = allChecked ? 'Seleccionar Todos' : 'Deseleccionar Todos';
+            });
+        }
+        
+        if (dashSaveHabitBtn) {
+            dashSaveHabitBtn.addEventListener('click', async () => {
+                if (!currentUser) return;
+                
+                const title = document.getElementById('dash-habit-title-input').value.trim();
+                const desc = document.getElementById('dash-habit-desc-input').value.trim();
+                const time = document.getElementById('dash-habit-time-input').value;
+                const moment = document.getElementById('dash-habit-moment-input').value;
+                const energyElement = document.querySelector('input[name="dash-habit-energy"]:checked');
+                const energy = energyElement ? energyElement.value : null;
+                const daysCheckboxes = document.querySelectorAll('input[name="dash-habit-days"]:checked');
+                const days = Array.from(daysCheckboxes).map(cb => cb.value);
+                
+                if (!title) {
+                    alert("Por favor ingresa un título para el hábito.");
+                    return;
+                }
+                
+                if (days.length === 0) {
+                    alert("Por favor selecciona al menos un día.");
+                    return;
+                }
+                
+                dashSaveHabitBtn.disabled = true;
+                dashSaveHabitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>';
+                
+                try {
+                    await addDoc(collection(db, "usuarios", currentUser.uid, "habitos"), {
+                        title: title,
+                        desc: desc,
+                        time: time,
+                        moment: moment,
+                        energy: energy,
+                        days: days,
+                        status: 'pendientes',
+                        createdAt: serverTimestamp(),
+                        completedDates: []
+                    });
+                    
+                    closeDashModal();
+                } catch (error) {
+                    console.error("Error al crear hábito:", error);
+                    alert("Error al guardar el hábito. Intenta nuevamente.");
+                } finally {
+                    dashSaveHabitBtn.disabled = false;
+                    dashSaveHabitBtn.textContent = 'Crear Hábito';
+                }
+            });
+        }
+    }
 });
