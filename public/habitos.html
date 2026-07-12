@@ -205,17 +205,31 @@
                 <!-- Section: Lista de Hábitos -->
                 <section class="lg:col-span-2 space-y-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Hábitos
-                            de Hoy</h3>
+                        <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Hábitos de Hoy</h3>
                         <button id="open-habit-modal-btn"
                             class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1 group">
                             <span class="material-symbols-outlined text-[18px]">add</span>
                             Añadir Hábito
                         </button>
                     </div>
+                    
+                    <!-- Status Tabs -->
+                    <div class="flex p-1 bg-surface-container-high rounded-2xl w-full max-w-md mb-6" id="habit-status-tabs">
+                        <button id="tab-habit-pendientes" data-status="pendientes" class="habit-status-tab flex-1 py-2 rounded-xl bg-white text-primary font-label-md shadow-sm text-label-md transition-all">Pendientes</button>
+                        <button id="tab-habit-completados" data-status="completadas" class="habit-status-tab flex-1 py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface transition-all">Completados</button>
+                    </div>
+
                     <div class="space-y-3" id="habits-list">
                         <!-- Placeholder for adding more -->
-
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div id="habit-empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
+                        <div class="w-24 h-24 mb-4 bg-surface-container rounded-full flex items-center justify-center shadow-inner">
+                            <span class="material-symbols-outlined text-[48px] text-primary opacity-50" id="habit-empty-icon">task</span>
+                        </div>
+                        <h3 id="habit-empty-title" class="font-headline-sm text-headline-sm text-on-surface mb-2 font-bold">¡Todo al día!</h3>
+                        <p id="habit-empty-desc" class="font-body-md text-body-md text-on-surface-variant max-w-sm">No tienes hábitos pendientes por hoy.</p>
                     </div>
                 </section>
                 <!-- Section: Sidebar Widgets (Monthly Progress) -->

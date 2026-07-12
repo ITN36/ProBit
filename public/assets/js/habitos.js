@@ -1,8 +1,9 @@
 import { auth, db } from './firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
 let currentUser = null;
+let allHabits = [];
+let currentHabitFilter = 'pendientes';
 
 // Helper to get YYYY-MM-DD for current week (Mon-Sun)
 function getCurrentWeekDates() {
@@ -63,6 +64,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             }
+        });
+    }
+
+    // --- HABIT TABS LOGIC ---
+    const tabPendientes = document.getElementById('tab-habit-pendientes');
+    const tabCompletados = document.getElementById('tab-habit-completados');
+    if (tabPendientes && tabCompletados) {
+        const tabs = [tabPendientes, tabCompletados];
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active classes
+                tabs.forEach(t => {
+                    t.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+                    t.classList.add('text-on-surface-variant', 'hover:bg-surface');
+                });
+                // Add active classes to clicked tab
+                tab.classList.remove('text-on-surface-variant', 'hover:bg-surface');
+                tab.classList.add('bg-white', 'text-primary', 'shadow-sm');
+                
+                currentHabitFilter = tab.dataset.status;
+                if (typeof renderHabitsList === 'function') {
+                    renderHabitsList();
+                }
+            });
         });
     }
 
@@ -212,18 +237,57 @@ function loadHabits() {
     const q = query(collection(db, "usuarios", currentUser.uid, "habitos"), orderBy("createdAt", "asc"));
     
     onSnapshot(q, (snapshot) => {
-        listContainer.innerHTML = ''; // Limpiar lista
-        
-        if (snapshot.empty) {
-            listContainer.innerHTML = '<div class="text-center p-8 text-on-surface-variant/60 font-body-md">No tienes hábitos. ¡Crea uno nuevo!</div>';
-            return;
-        }
-
+        allHabits = [];
         snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            renderHabitCard(docSnap.id, data, listContainer);
+            allHabits.push({ id: docSnap.id, ...docSnap.data() });
         });
+        renderHabitsList();
     });
+}
+
+function renderHabitsList() {
+    const listContainer = document.getElementById('habits-list');
+    const emptyState = document.getElementById('habit-empty-state');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+    const weekDates = getCurrentWeekDates();
+    const todayDateObj = new Date();
+    const todayIndex = todayDateObj.getDay() === 0 ? 6 : todayDateObj.getDay() - 1;
+    const todayStr = weekDates[todayIndex];
+
+    const filteredHabits = allHabits.filter(habit => {
+        const completed = habit.completedDates && habit.completedDates.includes(todayStr);
+        if (currentHabitFilter === 'pendientes') {
+            return !completed;
+        } else {
+            return completed;
+        }
+    });
+
+    if (filteredHabits.length === 0) {
+        if (emptyState) {
+            emptyState.classList.remove('hidden');
+            emptyState.classList.add('flex');
+            const title = document.getElementById('habit-empty-title');
+            const desc = document.getElementById('habit-empty-desc');
+            if (currentHabitFilter === 'pendientes') {
+                title.textContent = '¡Todo al día!';
+                desc.textContent = 'No tienes hábitos pendientes por hoy.';
+            } else {
+                title.textContent = 'Aún no hay completados';
+                desc.textContent = 'Tus hábitos completados aparecerán aquí.';
+            }
+        }
+    } else {
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+        }
+        filteredHabits.forEach(habit => {
+            renderHabitCard(habit.id, habit, listContainer);
+        });
+    }
 }
 
 function renderHabitCard(id, data, container) {
