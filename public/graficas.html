@@ -39,9 +39,9 @@
         <ul class="flex flex-col gap-2 flex-grow">
             <!-- Dashboard (Active) -->
             <li class="">
-                <a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-surface-container-high dark:bg-surface-variant text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary scale-98 transition-transform duration-200"
+                <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-secondary-container opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors scale-98 transition-transform duration-200"
                     href="dashboard.html">
-                    <span class="material-symbols-outlined filled">dashboard</span>
+                    <span class="material-symbols-outlined">dashboard</span>
                     <span class="font-label-md text-label-md">Dashboard</span>
                 </a>
             </li>
@@ -71,9 +71,9 @@
             </li>
             <!-- Graphs -->
             <li class="">
-                <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-secondary-container opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors scale-98 transition-transform duration-200"
+                <a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-surface-container-high dark:bg-surface-variant text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary scale-98 transition-transform duration-200"
                     href="graficas.html">
-                    <span class="material-symbols-outlined">leaderboard</span>
+                    <span class="material-symbols-outlined filled">leaderboard</span>
                     <span class="font-label-md text-label-md">Graphs</span>
                 </a>
             </li>
@@ -130,77 +130,21 @@
                 </div>
             </div>
         </header>
-        <!-- Dashboard Canvas -->
-        <div class="p-container-padding max-w-[1120px] mx-auto w-full flex flex-col gap-stack-lg pb-32 md:pb-stack-lg">
-            <!-- Mobile headline (visible only on small screens) -->
-            <h2 class="font-headline-md text-headline-md text-primary md:hidden block">Un paso a la vez es suficiente
-            </h2>
-            <!-- Summary Row -->
-            <section aria-label="Resumen diario" class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
-                <!-- Habit Streak Card (Live) -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-6 card-hover">
-                    <div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
-                        <span class="material-symbols-outlined filled text-3xl">local_fire_department</span>
-                    </div>
-                    <div>
-                        <p class="font-label-md text-label-md text-on-surface-variant mb-1">Racha de Hábitos</p>
-                        <h3 class="font-headline-lg text-headline-lg text-on-background">
-                            <span id="dashboard-habit-streak">0</span> días seguidos
-                        </h3>
-                    </div>
-                </div>
-                <!-- Tasks Completed Card -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-6 card-hover">
-                    <div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined filled text-3xl">task_alt</span>
-                    </div>
-                    <div>
-                        <p class="font-label-md text-label-md text-on-surface-variant mb-1">Progreso diario</p>
-                        <h3 class="font-headline-lg text-headline-lg text-on-background"><span id="dashboard-completed-today-count">0</span> Tareas completadas hoy</h3>
-                    </div>
-                </div>
-            </section>
-            <!-- Main Split Layout -->
-            <section aria-label="Actividades del día" class="grid grid-cols-1 lg:grid-cols-12 gap-stack-md">
-                <!-- Left Column: Habits (Live) -->
-                <div class="lg:col-span-5 bg-surface-container-low rounded-xl p-6 border border-surface-variant flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-headline-md text-headline-md text-on-background">Hábitos del día</h3>
-                        <button id="dashboard-add-habit-btn"
-                            class="flex items-center gap-1.5 font-label-md text-label-md text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">add</span>
-                            <span>Añadir</span>
-                        </button>
-                    </div>
-                    <!-- Habit list (dynamic) -->
-                    <ul id="dashboard-habits-list" class="flex flex-col gap-3 flex-1">
-                        <li class="text-on-surface-variant/50 text-sm italic text-center py-8">Cargando hábitos...</li>
-                    </ul>
-                    <!-- Link to full habits view -->
-                    <a href="habitos.html" class="text-center font-label-sm text-label-sm text-primary hover:underline mt-2">
-                        Ver todos los hábitos →
-                    </a>
-                </div>
-                <!-- Right Column: Pending Tasks -->
-                <div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-headline-md text-headline-md text-on-background">Tareas pendientes</h3>
-                        <button id="dashboard-new-task-btn"
-                            class="flex items-center gap-2 font-label-md text-label-md text-primary hover:bg-surface-container-low px-3 py-2 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined text-sm">add</span>
-                            <span class="">Nueva tarea</span>
-                        </button>
-                    </div>
-                    <div id="dashboard-tasks-container" class="flex flex-col gap-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
-                    </div>
-                </div>
-            </section>
+        <div class="p-container-padding max-w-[1120px] mx-auto w-full flex flex-col gap-stack-lg items-center justify-center h-full text-center">
+            <div class="w-48 h-48 mb-8 bg-surface-container rounded-[3rem] flex items-center justify-center shadow-inner relative overflow-hidden">
+                <span class="material-symbols-outlined text-[80px] text-primary opacity-50 relative z-10" id="coming-soon-icon">leaderboard</span>
+                <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+            </div>
+            <h2 class="font-headline-lg text-headline-lg text-primary font-bold mb-4">Gr&aacute;ficas de Progreso</h2>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mb-8">Esta secci&oacute;n est&aacute; actualmente en desarrollo. Estamos trabajando arduamente para traerte las mejores herramientas para tu progreso. &iexcl;Espera las pr&oacute;ximas actualizaciones!</p>
+            <a href="dashboard.html" class="px-8 py-4 bg-primary text-on-primary rounded-2xl font-label-md text-label-md shadow-md hover:bg-primary/90 hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300">
+                Volver al Dashboard
+            </a>
         </div>
-    </main>
-    <!-- Mobile Bottom Navigation (Hidden on desktop, hides on scroll down) -->
+<!-- Mobile Bottom Navigation (Hidden on desktop, hides on scroll down) -->
     <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-40 pb-safe transition-transform duration-300 transform translate-y-0">
-        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="dashboard.html">
-            <span class="material-symbols-outlined filled">dashboard</span>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="dashboard.html">
+            <span class="material-symbols-outlined">dashboard</span>
             <span class="font-label-sm text-[10px]">Dashboard</span>
         </a>
         <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="pomodoro.html">
@@ -215,8 +159,8 @@
             <span class="material-symbols-outlined">cached</span>
             <span class="font-label-sm text-[10px]">Hábitos</span>
         </a>
-        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="graficas.html">
-            <span class="material-symbols-outlined">leaderboard</span>
+        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="graficas.html">
+            <span class="material-symbols-outlined filled">leaderboard</span>
             <span class="font-label-sm text-[10px]">Graphs</span>
         </a>
         <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="braindump.html">
