@@ -4,6 +4,7 @@ import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimest
 let currentUser = null;
 let allHabits = [];
 let currentHabitFilter = 'pendientes';
+let selectedHabitId = null;
 
 // Helper to get YYYY-MM-DD for current week (Mon-Sun)
 function getCurrentWeekDates() {
@@ -98,6 +99,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const habitModalOverlay = document.getElementById('habit-modal-overlay');
     const habitModalContent = document.getElementById('habit-modal-content');
     const habitDaysAllBtn = document.getElementById('habit-days-all-btn');
+
+    // --- GLOBAL CLICK LISTENER TO DESELECT HABIT ---
+    document.addEventListener('click', (e) => {
+        // Ignorar si hacemos clic en una tarjeta de hábito o en las pestañas
+        if (e.target.closest('.habit-card-wrapper') || e.target.closest('#habit-status-tabs')) return;
+        // Ignorar si hacemos clic en el modal o su botón de abrir
+        if (e.target.closest('#open-habit-modal-btn') || e.target.closest('#habit-modal-overlay')) return;
+        // Ignorar clicks en botones de edición o borrar para que no interfiera
+        if (e.target.closest('button')) return;
+        
+        if (selectedHabitId !== null) {
+            selectedHabitId = null;
+            if (typeof renderHabitsList === 'function') {
+                renderHabitsList();
+            }
+        }
+    });
 
     if (openHabitModalBtn && habitModalOverlay) {
         window.openModal = () => {
@@ -265,6 +283,25 @@ function renderHabitsList() {
         }
     });
 
+    // Sort by proximity to today
+    const dayMap = { 'L':0, 'M':1, 'X':2, 'J':3, 'V':4, 'S':5, 'D':6 };
+    function getDaysUntilNext(habit) {
+        if (!habit.days || habit.days.length === 0) return 999;
+        let minDistance = 999;
+        for (const d of habit.days) {
+            const targetIndex = dayMap[d];
+            if (targetIndex === undefined) continue;
+            let distance = targetIndex - todayIndex;
+            if (distance < 0) distance += 7;
+            if (distance < minDistance) minDistance = distance;
+        }
+        return minDistance;
+    }
+
+    filteredHabits.sort((a, b) => {
+        return getDaysUntilNext(a) - getDaysUntilNext(b);
+    });
+
     if (filteredHabits.length === 0) {
         if (emptyState) {
             emptyState.classList.remove('hidden');
@@ -287,7 +324,170 @@ function renderHabitsList() {
         filteredHabits.forEach(habit => {
             renderHabitCard(habit.id, habit, listContainer);
         });
+        
+        // Update streak UI
+        const activeHabit = allHabits.find(h => h.id === selectedHabitId);
+        if (activeHabit) {
+            updateStreakUI(activeHabit);
+        } else {
+            updateGlobalStreakUI();
+        }
     }
+}
+
+function getGlobalCompletedDates() {
+    const dates = new Set();
+    allHabits.forEach(habit => {
+        if (habit.completedDates) {
+            habit.completedDates.forEach(d => dates.add(d));
+        }
+    });
+    return dates;
+}
+
+function calculateGlobalStreak() {
+    const globalDates = getGlobalCompletedDates();
+    if (globalDates.size === 0) return 0;
+    
+    let streak = 0;
+    let today = new Date();
+    for (let i = 0; i < 365; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        
+        if (globalDates.has(dateStr)) {
+            streak++;
+        } else {
+            if (i === 0) continue; // Skip breaking if not done today yet
+            else break;
+        }
+    }
+    return streak;
+}
+
+function updateGlobalStreakUI() {
+    const titleEl = document.getElementById('streak-section-title');
+    const containerEl = document.getElementById('streak-circles-container');
+    const countEl = document.getElementById('streak-count-text');
+    
+    if (!titleEl || !containerEl || !countEl) return;
+    
+    titleEl.textContent = `Tu Racha de Bits`;
+    countEl.textContent = calculateGlobalStreak();
+    
+    const allDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    const weekDates = getCurrentWeekDates();
+    const globalDates = getGlobalCompletedDates();
+    
+    const circlesHtml = allDays.map((d, index) => {
+        const dateStr = weekDates[index];
+        const isCompleted = globalDates.has(dateStr);
+        
+        const dayLabel = d === 'X' ? 'MIÉ' : (d === 'M' ? 'MAR' : (d === 'S' ? 'SÁB' : (d === 'D' ? 'DOM' : (d === 'L' ? 'LUN' : (d === 'J' ? 'JUE' : 'VIE')))));
+        
+        let circleContent = '';
+        let classes = '';
+        
+        if (isCompleted) {
+            classes = 'bg-primary text-white';
+            circleContent = `<span class="material-symbols-outlined text-[20px]">check</span>`;
+        } else {
+            classes = 'bg-surface-container border-2 border-transparent';
+        }
+        
+        return `
+            <div class="flex flex-col items-center gap-2 min-w-max pr-2 md:pr-4">
+                <span class="text-[10px] font-semibold text-on-surface-variant/50">${dayLabel}</span>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bit-circle ${classes}">
+                    ${circleContent}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    containerEl.innerHTML = circlesHtml;
+}
+
+function calculateStreak(habit) {
+    if (!habit.days || habit.days.length === 0) return 0;
+    if (!habit.completedDates || habit.completedDates.length === 0) return 0;
+    
+    const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
+    
+    let streak = 0;
+    let today = new Date();
+    // Check up to 365 days back
+    for (let i = 0; i < 365; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        
+        const dayOfWeekStr = dayMap[d.getDay()];
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        
+        const isAssigned = habit.days.includes(dayOfWeekStr);
+        const isCompleted = habit.completedDates.includes(dateStr);
+        
+        if (isAssigned) {
+            if (isCompleted) {
+                streak++;
+            } else {
+                if (i === 0) {
+                    continue; // Skip breaking on today if not done yet
+                } else {
+                    break; // Streak broken
+                }
+            }
+        }
+    }
+    return streak;
+}
+
+function updateStreakUI(habit) {
+    const titleEl = document.getElementById('streak-section-title');
+    const containerEl = document.getElementById('streak-circles-container');
+    const countEl = document.getElementById('streak-count-text');
+    
+    if (!titleEl || !containerEl || !countEl) return;
+    
+    titleEl.textContent = `Racha: ${habit.title}`;
+    countEl.textContent = calculateStreak(habit);
+    
+    const allDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    const weekDates = getCurrentWeekDates();
+    const completedDates = habit.completedDates || [];
+    const days = habit.days || [];
+    
+    const circlesHtml = allDays.map((d, index) => {
+        const isAssigned = days.includes(d);
+        const dateStr = weekDates[index];
+        const isCompleted = completedDates.includes(dateStr);
+        
+        const dayLabel = d === 'X' ? 'MIÉ' : (d === 'M' ? 'MAR' : (d === 'S' ? 'SÁB' : (d === 'D' ? 'DOM' : (d === 'L' ? 'LUN' : (d === 'J' ? 'JUE' : 'VIE')))));
+        
+        let circleContent = '';
+        let classes = '';
+        
+        if (isCompleted) {
+            classes = 'bg-primary text-white';
+            circleContent = `<span class="material-symbols-outlined text-[20px]">check</span>`;
+        } else if (isAssigned) {
+            classes = 'bg-primary/20 border-2 border-dashed border-primary/40';
+        } else {
+            classes = 'bg-surface-container';
+        }
+        
+        return `
+            <div class="flex flex-col items-center gap-2 min-w-max pr-2 md:pr-4">
+                <span class="text-[10px] font-semibold text-on-surface-variant/50">${dayLabel}</span>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bit-circle ${classes}">
+                    ${circleContent}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    containerEl.innerHTML = circlesHtml;
 }
 
 function renderHabitCard(id, data, container) {
@@ -343,7 +543,6 @@ function renderHabitCard(id, data, container) {
     }).join('');
 
     const habitCardHtml = `
-        <div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between border border-outline-variant/20 hover:border-primary/30 transition-colors group">
             <div class="flex items-center gap-4">
                 <div class="relative">
                     <input class="peer hidden custom-checkbox" id="chk-${id}" type="checkbox">
@@ -366,11 +565,19 @@ function renderHabitCard(id, data, container) {
                 <button class="btn-edit p-1.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
                 <button class="btn-delete p-1.5 rounded-full hover:bg-error/10 text-error transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
             </div>
-        </div>
     `;
 
-    container.insertAdjacentHTML('beforeend', habitCardHtml);
-    const newCard = container.lastElementChild;
+    const newCard = document.createElement('div');
+    newCard.className = `habit-card-wrapper bg-surface-container-lowest p-4 md:p-5 rounded-lg flex items-center justify-between border ${selectedHabitId === id ? 'border-primary shadow-sm ring-1 ring-primary/30' : 'border-outline-variant/20'} hover:border-primary/30 transition-colors group cursor-pointer`;
+    newCard.innerHTML = habitCardHtml;
+    
+    newCard.addEventListener('click', (e) => {
+        if (e.target.closest('.custom-checkbox') || e.target.closest('button')) return;
+        selectedHabitId = id;
+        renderHabitsList(); // Re-render to show selection ring and update streak UI
+    });
+
+    container.appendChild(newCard);
 
     // Checkbox strikethrough logic
     const newCheckbox = newCard.querySelector('.custom-checkbox');

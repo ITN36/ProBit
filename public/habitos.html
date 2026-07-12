@@ -150,52 +150,17 @@
 
             <!-- Section: Tu Racha de Bits -->
             <section class="animate-fade-in" style="opacity: 1; transform: translateY(0px); transition: 0.6s ease-out;">
-                <h3 class="font-label-md text-label-md text-on-surface-variant mb-4 uppercase tracking-wider">Tu Racha
-                    de Bits</h3>
-                <div
-                    class="bg-surface-container-lowest rounded-xl p-8 flex justify-between items-center shadow-sm border border-outline-variant/30 overflow-x-auto">
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">LUN</span>
-                        <div
-                            class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white bit-circle">
-                            <span class="material-symbols-outlined text-[20px]">check</span>
-                        </div>
+                <h3 id="streak-section-title" class="font-label-md text-label-md text-on-surface-variant mb-4 uppercase tracking-wider">Tu Racha de Bits</h3>
+                <div class="bg-surface-container-lowest rounded-xl p-8 flex justify-between items-center shadow-sm border border-outline-variant/30 overflow-x-auto">
+                    
+                    <!-- Circles container -->
+                    <div id="streak-circles-container" class="flex items-center gap-4 flex-1">
+                        <!-- Circles will be injected dynamically -->
                     </div>
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">MAR</span>
-                        <div
-                            class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white bit-circle">
-                            <span class="material-symbols-outlined text-[20px]">check</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">MIÉ</span>
-                        <div
-                            class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white bit-circle">
-                            <span class="material-symbols-outlined text-[20px]">check</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">JUE</span>
-                        <div
-                            class="w-12 h-12 rounded-full bg-primary/20 border-2 border-dashed border-primary/40 bit-circle">
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">VIE</span>
-                        <div class="w-12 h-12 rounded-full bg-surface-container bit-circle"></div>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">SÁB</span>
-                        <div class="w-12 h-12 rounded-full bg-surface-container bit-circle"></div>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 min-w-max pr-4">
-                        <span class="text-[10px] font-semibold text-on-surface-variant/50">DOM</span>
-                        <div class="w-12 h-12 rounded-full bg-surface-container bit-circle"></div>
-                    </div>
-                    <div
-                        class="ml-4 pl-4 md:ml-8 md:pl-8 border-l border-outline-variant/30 flex flex-col items-center min-w-max">
-                        <span class="font-headline-lg text-headline-lg text-primary">3</span>
+                    
+                    <!-- Streak count -->
+                    <div class="ml-4 pl-4 md:ml-8 md:pl-8 border-l border-outline-variant/30 flex flex-col items-center min-w-max">
+                        <span id="streak-count-text" class="font-headline-lg text-headline-lg text-primary">0</span>
                         <span class="text-[10px] font-bold text-on-surface-variant uppercase">Días Seguidos</span>
                     </div>
                 </div>
