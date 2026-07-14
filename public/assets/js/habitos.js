@@ -422,7 +422,7 @@ function renderCalendar() {
         let html = `
             <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">L</div>
             <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">M</div>
-            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">X</div>
+            <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">M</div>
             <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">J</div>
             <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">V</div>
             <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">S</div>
@@ -446,7 +446,7 @@ function renderCalendar() {
     let html = `
         <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">L</div>
         <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">M</div>
-        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">X</div>
+        <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">M</div>
         <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">J</div>
         <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">V</div>
         <div class="text-[9px] font-bold text-on-surface-variant/40 flex justify-center">S</div>

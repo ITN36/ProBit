@@ -2043,7 +2043,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert("Error al guardar el hábito. Intenta nuevamente.");
                 } finally {
                     dashSaveHabitBtn.disabled = false;
-                    dashSaveHabitBtn.textContent = 'Crear Hábito';
+                    dashSaveHabitBtn.textContent = 'Guardar Hábito';
                 }
             });
         }
