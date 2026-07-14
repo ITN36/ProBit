@@ -1453,6 +1453,7 @@ function setupSettingsModal() {
             e.stopPropagation();
             const dropdown = btn.nextElementSibling;
             if (dropdown && dropdown.classList.contains('settings-dropdown')) {
+                document.querySelectorAll('.notifications-dropdown').forEach(nd => nd.classList.add('hidden'));
                 document.querySelectorAll('.settings-dropdown').forEach(d => {
                     if (d !== dropdown) d.classList.add('hidden');
                 });
@@ -1461,9 +1462,27 @@ function setupSettingsModal() {
         });
     });
     
-    // Clic fuera para cerrar dropdown
+    // Toggle Notifications Dropdown logic
+    document.querySelectorAll('[aria-label="notifications"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = btn.nextElementSibling;
+            if (dropdown && dropdown.classList.contains('notifications-dropdown')) {
+                document.querySelectorAll('.settings-dropdown').forEach(sd => sd.classList.add('hidden'));
+                document.querySelectorAll('.notifications-dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.add('hidden');
+                });
+                dropdown.classList.toggle('hidden');
+            }
+        });
+    });
+    
+    // Clic fuera para cerrar dropdowns
     document.addEventListener('click', () => {
         document.querySelectorAll('.settings-dropdown').forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+        document.querySelectorAll('.notifications-dropdown').forEach(dropdown => {
             dropdown.classList.add('hidden');
         });
     });

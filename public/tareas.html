@@ -106,10 +106,20 @@
             <!-- Trailing Actions -->
             <div class="flex items-center gap-4">
                 <span id="user-greeting" class="font-body-md text-on-surface-variant hidden md:block">Hola, Usuario</span>
-                <button aria-label="notifications"
-                    class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
+                <div class="relative">
+                    <button aria-label="notifications"
+                        class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div class="notifications-dropdown absolute right-0 mt-2 w-64 bg-surface rounded-xl shadow-lg border border-outline-variant/30 p-4 hidden flex-col z-50 transform origin-top-right transition-all">
+                        <div class="flex items-center gap-2 mb-2 text-primary font-bold">
+                            <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                            <span class="font-label-md text-label-md">Notificaciones</span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant">Esta función aún no está disponible. Estamos trabajando en el sistema de alertas para ayudarte a mantener tus hábitos al día. ¡Espera las próximas actualizaciones!</p>
+                    </div>
+                </div>
                 <div class="relative">
                     <button aria-label="settings"
                         class="text-on-surface-variant dark:text-on-secondary-container opacity-80 hover:opacity-100 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors p-2 rounded-full">
