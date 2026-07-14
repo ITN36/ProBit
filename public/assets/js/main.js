@@ -235,8 +235,14 @@ if (displayEl) {
     const playPauseBtn = document.getElementById('btn-play-pause');
     const playPauseIcon = document.getElementById('play-pause-icon');
     const resetBtn = document.getElementById('btn-reset');
+    const skipBtn = document.getElementById('btn-skip');
     const timerContainer = document.querySelector('.timer-container');
     const modeButtons = document.querySelectorAll('#timer-modes button');
+
+    const confirmModal = document.getElementById('pomodoro-confirm-modal');
+    const confirmContent = document.getElementById('pomodoro-confirm-content');
+    const confirmCancelBtn = document.getElementById('pomodoro-confirm-cancel-btn');
+    const confirmOkBtn = document.getElementById('pomodoro-confirm-ok-btn');
 
     function formatTime(seconds) {
         const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -305,9 +311,43 @@ if (displayEl) {
         updateDisplay();
     }
 
+    function openConfirmModal() {
+        if (!confirmModal || !confirmContent) return;
+        confirmModal.classList.remove('hidden');
+        void confirmModal.offsetWidth;
+        confirmModal.classList.remove('opacity-0');
+        confirmContent.classList.remove('opacity-0', 'scale-95');
+        confirmContent.classList.add('opacity-100', 'scale-100');
+    }
+
+    function closeConfirmModal() {
+        if (!confirmModal || !confirmContent) return;
+        confirmModal.classList.add('opacity-0');
+        confirmContent.classList.remove('opacity-100', 'scale-100');
+        confirmContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            confirmModal.classList.add('hidden');
+        }, 300);
+    }
+
     // Event Listeners
     if (playPauseBtn) playPauseBtn.addEventListener('click', toggleTimer);
     if (resetBtn) resetBtn.addEventListener('click', resetTimer);
+    if (skipBtn) skipBtn.addEventListener('click', openConfirmModal);
+    if (confirmCancelBtn) confirmCancelBtn.addEventListener('click', closeConfirmModal);
+    if (confirmOkBtn) {
+        confirmOkBtn.addEventListener('click', () => {
+            closeConfirmModal();
+            pauseTimer();
+            timeLeft = 0;
+            updateDisplay();
+        });
+    }
+    if (confirmModal) {
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) closeConfirmModal();
+        });
+    }
 
     if (modeButtons) {
         modeButtons.forEach(btn => {

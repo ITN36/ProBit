@@ -208,10 +208,30 @@
                     <span class="material-symbols-outlined filled text-[36px]" id="play-pause-icon">play_arrow</span>
                 </button>
                 <button
-                    class="w-14 h-14 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/50 flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                    class="w-14 h-14 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/50 flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+                    id="btn-skip">
                     <span class="material-symbols-outlined text-[28px]">skip_next</span>
                 </button>
             </div>
+        <!-- Pomodoro Confirm Finish Modal -->
+        <div id="pomodoro-confirm-modal" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+            <div id="pomodoro-confirm-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-md border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 flex flex-col overflow-hidden">
+                <!-- Body -->
+                <div class="p-8 text-center space-y-4">
+                    <div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto">
+                        <span class="material-symbols-outlined text-[32px]">help</span>
+                    </div>
+                    <h3 class="font-headline-md text-headline-md text-on-surface font-bold">¿Finalizar Sesión?</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant">¿Estás seguro de que deseas finalizar tu sesión de enfoque actual antes de tiempo?</p>
+                </div>
+                <!-- Footer Actions -->
+                <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                    <button id="pomodoro-confirm-cancel-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                    <button id="pomodoro-confirm-ok-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all">Finalizar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Select Task Modal -->
         <div id="pomodoro-select-task-modal" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
             <div id="pomodoro-select-task-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-md border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 flex flex-col max-h-[80vh]">
