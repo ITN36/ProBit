@@ -229,6 +229,47 @@
             </div>
         </div>
     </main>
+
+    <!-- Edit Thought Modal -->
+    <div id="edit-thought-modal-overlay" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="edit-thought-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-lg border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col">
+            <div class="px-8 py-6 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-lowest">
+                <h3 class="font-headline-md text-headline-md text-primary font-bold">Editar Pensamiento</h3>
+                <button id="close-edit-thought-btn" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <label class="font-label-md text-label-md text-on-surface-variant">Tu pensamiento</label>
+                        <span id="edit-char-count" class="text-[10px] opacity-60 font-normal uppercase">0 / 150</span>
+                    </div>
+                    <textarea id="edit-thought-input" maxlength="150" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface min-h-[120px] resize-none focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"></textarea>
+                </div>
+            </div>
+            <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                <button id="cancel-edit-thought-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="save-edit-thought-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all flex items-center gap-2">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Thought Modal -->
+    <div id="delete-thought-modal-overlay" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="delete-thought-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-sm border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col text-center p-8">
+            <div class="w-16 h-16 bg-error-container text-error rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-[32px]">delete_forever</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">¿Eliminar pensamiento?</h3>
+            <p class="text-body-md text-on-surface-variant mb-8">Esta acción no se puede deshacer. Tu pensamiento desaparecerá para siempre.</p>
+            <div class="flex gap-3 justify-center w-full">
+                <button id="cancel-delete-thought-btn" class="flex-1 px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant bg-surface-container-low hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="confirm-delete-thought-btn" class="flex-1 px-6 py-3 rounded-xl font-label-md text-label-md bg-error text-on-error hover:bg-error/90 shadow-md transition-all">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="assets/js/braindump.js"></script>
     <script type="module" src="assets/js/main.js"></script>
 </body>
