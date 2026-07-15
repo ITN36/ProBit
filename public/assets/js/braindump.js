@@ -26,7 +26,15 @@ const completeModalContent = document.getElementById('complete-thought-modal-con
 const cancelCompleteBtn = document.getElementById('cancel-complete-thought-btn');
 const confirmCompleteBtn = document.getElementById('confirm-complete-thought-btn');
 
+const convertModalOverlay = document.getElementById('convert-task-modal-overlay');
+const convertModalContent = document.getElementById('convert-task-modal-content');
+const convertTitleInput = document.getElementById('convert-task-title-input');
+const cancelConvertBtn = document.getElementById('cancel-convert-task-btn');
+const closeConvertBtn = document.getElementById('close-convert-task-btn');
+const saveConvertBtn = document.getElementById('save-convert-task-btn');
+
 let currentCompleteId = null;
+let currentConvertId = null;
 
 function openModal(overlay, content) {
     if(!overlay || !content) return;
@@ -123,6 +131,50 @@ if (confirmCompleteBtn) {
         } finally {
             confirmCompleteBtn.disabled = false;
             confirmCompleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    });
+}
+
+if (cancelConvertBtn) cancelConvertBtn.addEventListener('click', () => closeModal(convertModalOverlay, convertModalContent));
+if (closeConvertBtn) closeConvertBtn.addEventListener('click', () => closeModal(convertModalOverlay, convertModalContent));
+
+if (saveConvertBtn) {
+    saveConvertBtn.addEventListener('click', async () => {
+        if (!currentConvertId) return;
+        
+        const title = convertTitleInput.value.trim();
+        if (!title) {
+            alert("El título de la tarea es obligatorio.");
+            return;
+        }
+
+        const energyNode = document.querySelector('input[name="convert-task-energy"]:checked');
+        const energy = energyNode ? energyNode.value : 'baja';
+        
+        saveConvertBtn.disabled = true;
+        saveConvertBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        try {
+            await addDoc(collection(db, "usuarios", currentUser.uid, "tareas"), {
+                title: title,
+                description: "",
+                energy: energy,
+                date: "",
+                time: "",
+                userId: currentUser.uid,
+                completed: false,
+                createdAt: serverTimestamp()
+            });
+            
+            await deleteDoc(doc(db, 'usuarios', currentUser.uid, 'braindumps', currentConvertId));
+            
+            closeModal(convertModalOverlay, convertModalContent);
+        } catch (error) {
+            console.error("Error converting thought to task:", error);
+            alert("Hubo un error al convertir a tarea.");
+        } finally {
+            saveConvertBtn.disabled = false;
+            saveConvertBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
     });
 }
@@ -233,13 +285,9 @@ function renderThought(id, data) {
             ${data.content}
         </p>
         <div class="flex flex-wrap gap-2 pt-4 border-t border-outline-variant/30">
-            <button class="flex items-center gap-1 text-label-sm text-on-secondary-container bg-secondary-container/10 px-3 py-1.5 rounded-full hover:bg-secondary-container/20 transition-colors">
-                <span class="material-symbols-outlined text-sm">assignment</span>
-                Convertir en Tarea
-            </button>
-            <button class="flex items-center gap-1 text-label-sm text-on-tertiary-fixed-variant bg-tertiary-fixed/30 px-3 py-1.5 rounded-full hover:bg-tertiary-fixed/50 transition-colors">
-                <span class="material-symbols-outlined text-sm">bolt</span>
-                Asignar Energía
+            <button class="btn-convert-task flex items-center gap-1 text-label-sm text-on-secondary-container bg-secondary-container/10 px-3 py-1.5 rounded-full hover:bg-secondary-container/20 transition-colors" data-id="${id}">
+                <span class="material-symbols-outlined text-sm pointer-events-none">assignment</span>
+                <span class="pointer-events-none">Convertir en Tarea</span>
             </button>
         </div>
     `;
@@ -324,6 +372,20 @@ document.addEventListener('click', async (e) => {
     if (completeBtn) {
         currentCompleteId = completeBtn.dataset.id;
         openModal(completeModalOverlay, completeModalContent);
+    }
+    
+    const convertBtn = e.target.closest('.btn-convert-task');
+    if (convertBtn) {
+        currentConvertId = convertBtn.dataset.id;
+        const textElement = document.getElementById(`content-${currentConvertId}`);
+        if (convertTitleInput) {
+            convertTitleInput.value = textElement.innerText;
+        }
+        
+        const defaultRadio = document.querySelector('input[name="convert-task-energy"][value="alta"]');
+        if (defaultRadio) defaultRadio.checked = true;
+        
+        openModal(convertModalOverlay, convertModalContent);
     }
 
     if (editBtn) {
