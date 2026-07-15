@@ -425,6 +425,7 @@ if (taskCheckboxes.length > 0) {
 const bottomNav = document.getElementById('mobile-bottom-nav');
 const scrollableMain = document.querySelector('main');
 let lastScrollTop = 0;
+let isNavHidden = false;
 
 if (bottomNav && scrollableMain) {
     scrollableMain.addEventListener('scroll', () => {
@@ -435,13 +436,31 @@ if (bottomNav && scrollableMain) {
             if (scrollTop > lastScrollTop && scrollTop > 50) {
                 // Downscroll - hide it
                 bottomNav.style.transform = 'translateY(100%)';
+                isNavHidden = true;
             } else {
                 // Upscroll - show it
                 bottomNav.style.transform = 'translateY(0)';
+                isNavHidden = false;
             }
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
         }
     }, { passive: true });
+
+    // Hide/Show on tap
+    scrollableMain.addEventListener('click', (e) => {
+        // Ignore clicks on interactive elements
+        const isInteractive = e.target.closest('button, a, input, textarea, select, label');
+        
+        if (!isInteractive) {
+            if (isNavHidden) {
+                bottomNav.style.transform = 'translateY(0)';
+                isNavHidden = false;
+            } else {
+                bottomNav.style.transform = 'translateY(100%)';
+                isNavHidden = true;
+            }
+        }
+    });
 }
 
 // --- MANEJO DE SESIÓN Y TAREAS (FIREBASE) ---
