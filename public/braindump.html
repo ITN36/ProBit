@@ -338,6 +338,35 @@
         </div>
     </div>
 
+    <!-- Mobile Bottom Navigation (Hidden on desktop, hides on scroll down) -->
+    <nav id="mobile-bottom-nav"
+        class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-outline-variant/30 flex justify-around py-3 px-2 z-40 pb-safe transition-transform duration-300 transform translate-y-0">
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="dashboard.html">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-sm text-[10px]">Dashboard</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="pomodoro.html">
+            <span class="material-symbols-outlined filled">timer</span>
+            <span class="font-label-sm text-[10px]">Pomodoro</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="tareas.html">
+            <span class="material-symbols-outlined">checklist</span>
+            <span class="font-label-sm text-[10px]">Tasks</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="habitos.html">
+            <span class="material-symbols-outlined">cached</span>
+            <span class="font-label-sm text-[10px]">Hábitos</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-70" href="graficas.html">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <span class="font-label-sm text-[10px]">Graphs</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-primary font-bold" href="braindump.html">
+            <span class="material-symbols-outlined">note_add</span>
+            <span class="font-label-sm text-[10px]">Brain Dump</span>
+        </a>
+    </nav>
+
     <script type="module" src="assets/js/braindump.js"></script>
     <script type="module" src="assets/js/main.js"></script>
 </body>
