@@ -171,8 +171,18 @@ function loadThoughts() {
             return;
         }
 
-        snapshot.forEach(doc => {
-            renderThought(doc.id, doc.data());
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
+            const now = new Date();
+            const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+            
+            if (now.getTime() - createdAt.getTime() > sevenDaysMs) {
+                // Auto-delete thought older than 7 days
+                deleteDoc(doc(db, 'usuarios', currentUser.uid, 'braindumps', docSnap.id)).catch(e => console.error("Error auto-deleting old thought:", e));
+            } else {
+                renderThought(docSnap.id, data);
+            }
         });
         
         // Always append empty state at the end
