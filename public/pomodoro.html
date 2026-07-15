@@ -214,6 +214,15 @@
                     <span class="material-symbols-outlined text-[28px]">skip_next</span>
                 </button>
             </div>
+            
+            <!-- Quick Brain Dump Button -->
+            <div class="mt-8">
+                <button id="btn-quick-braindump" class="flex items-center gap-2 bg-secondary-container/50 text-on-secondary-container px-6 py-3 rounded-2xl hover:bg-secondary-container/80 transition-colors shadow-sm border border-secondary-container/30 group">
+                    <span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">note_add</span>
+                    <span class="font-label-md text-label-md">Brain Dump Rápido</span>
+                </button>
+            </div>
+        </div>
         <!-- Pomodoro Confirm Finish Modal -->
         <div id="pomodoro-confirm-modal" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
             <div id="pomodoro-confirm-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-md border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 flex flex-col overflow-hidden">
@@ -282,6 +291,36 @@
             <span class="font-label-sm text-[10px]">Brain Dump</span>
         </a>
     </nav>
+
+    <!-- Quick Brain Dump Modal -->
+    <div id="quick-braindump-modal-overlay" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="quick-braindump-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-lg border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col">
+            <div class="px-8 py-6 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-lowest">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-[24px]">note_add</span>
+                    <h3 class="font-headline-md text-headline-md text-primary font-bold">Brain Dump</h3>
+                </div>
+                <button id="close-quick-braindump-btn" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-8 space-y-6">
+                <p class="font-body-md text-on-surface-variant opacity-80">Libera tu mente para seguir enfocándote en el Pomodoro.</p>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <label class="font-label-md text-label-md text-on-surface-variant">Tu pensamiento</label>
+                        <span id="quick-braindump-char-count" class="text-[10px] opacity-60 font-normal uppercase">0 / 150</span>
+                    </div>
+                    <textarea id="quick-braindump-input" maxlength="150" placeholder="¿Qué tienes en mente? Escríbelo aquí..." class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-4 font-body-md text-body-md text-on-surface min-h-[120px] resize-none focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"></textarea>
+                </div>
+            </div>
+            <div class="px-8 py-6 border-t border-outline-variant/20 bg-surface-container-lowest flex justify-end gap-3">
+                <button id="cancel-quick-braindump-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="save-quick-braindump-btn" class="px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all flex items-center gap-2">Guardar Nota</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="assets/js/main.js"></script>
 
 

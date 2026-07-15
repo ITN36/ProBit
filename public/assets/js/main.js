@@ -2108,3 +2108,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// QUICK BRAINDUMP MODAL LOGIC (POMODORO)
+document.addEventListener('DOMContentLoaded', () => {
+    const quickBraindumpBtn = document.getElementById('btn-quick-braindump');
+    const quickBraindumpOverlay = document.getElementById('quick-braindump-modal-overlay');
+    const quickBraindumpContent = document.getElementById('quick-braindump-modal-content');
+    const closeQuickBraindumpBtn = document.getElementById('close-quick-braindump-btn');
+    const cancelQuickBraindumpBtn = document.getElementById('cancel-quick-braindump-btn');
+    const saveQuickBraindumpBtn = document.getElementById('save-quick-braindump-btn');
+    const quickBraindumpInput = document.getElementById('quick-braindump-input');
+    const quickBraindumpCharCount = document.getElementById('quick-braindump-char-count');
+
+    if (quickBraindumpBtn && quickBraindumpOverlay) {
+        if (quickBraindumpInput && quickBraindumpCharCount) {
+            quickBraindumpInput.addEventListener('input', (e) => {
+                quickBraindumpCharCount.textContent = `${e.target.value.length} / 150`;
+            });
+        }
+
+        const openQuickModal = () => {
+            if (quickBraindumpInput) quickBraindumpInput.value = '';
+            if (quickBraindumpCharCount) quickBraindumpCharCount.textContent = '0 / 150';
+            
+            quickBraindumpOverlay.classList.remove('hidden');
+            void quickBraindumpOverlay.offsetWidth;
+            quickBraindumpOverlay.classList.remove('opacity-0');
+            quickBraindumpOverlay.classList.add('opacity-100');
+            quickBraindumpContent.classList.remove('scale-95', 'opacity-0');
+            quickBraindumpContent.classList.add('scale-100', 'opacity-100');
+            
+            if (quickBraindumpInput) {
+                setTimeout(() => { quickBraindumpInput.focus(); }, 300);
+            }
+        };
+
+        const closeQuickModal = () => {
+            quickBraindumpOverlay.classList.remove('opacity-100');
+            quickBraindumpOverlay.classList.add('opacity-0');
+            quickBraindumpContent.classList.remove('scale-100', 'opacity-100');
+            quickBraindumpContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                quickBraindumpOverlay.classList.add('hidden');
+            }, 300);
+        };
+
+        quickBraindumpBtn.addEventListener('click', openQuickModal);
+        closeQuickBraindumpBtn.addEventListener('click', closeQuickModal);
+        cancelQuickBraindumpBtn.addEventListener('click', closeQuickModal);
+
+        quickBraindumpOverlay.addEventListener('click', (e) => {
+            if (e.target === quickBraindumpOverlay) {
+                closeQuickModal();
+            }
+        });
+
+        if (saveQuickBraindumpBtn) {
+            saveQuickBraindumpBtn.addEventListener('click', async () => {
+                if (!currentUser) {
+                    if (window.showToast) window.showToast("Inicia sesión primero", "error");
+                    return;
+                }
+                
+                const content = quickBraindumpInput.value.trim();
+                
+                if (!content) {
+                    if (window.showToast) window.showToast("El pensamiento no puede estar vacío.", "error");
+                    return;
+                }
+                
+                saveQuickBraindumpBtn.disabled = true;
+                saveQuickBraindumpBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                try {
+                    await addDoc(collection(db, "usuarios", currentUser.uid, "braindumps"), {
+                        content: content,
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    if (window.showToast) window.showToast("Nota guardada en Brain Dump", "success");
+                    closeQuickModal();
+                } catch (error) {
+                    console.error("Error al guardar nota:", error);
+                    if (window.showToast) window.showToast("Hubo un error al guardar.", "error");
+                } finally {
+                    saveQuickBraindumpBtn.disabled = false;
+                    saveQuickBraindumpBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+    }
+});
