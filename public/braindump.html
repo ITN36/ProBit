@@ -270,6 +270,21 @@
         </div>
     </div>
 
+    <!-- Complete Thought Modal -->
+    <div id="complete-thought-modal-overlay" class="fixed inset-0 bg-surface-variant/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="complete-thought-modal-content" class="bg-surface rounded-[2rem] shadow-2xl w-full max-w-sm border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col text-center p-8">
+            <div class="w-16 h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-[32px]">task_alt</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">¿Completar pensamiento?</h3>
+            <p class="text-body-md text-on-surface-variant mb-8">Al completarlo, este pensamiento desaparecerá de tu lista para mantener tu mente despejada.</p>
+            <div class="flex gap-3 justify-center w-full">
+                <button id="cancel-complete-thought-btn" class="flex-1 px-6 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant bg-surface-container-low hover:bg-surface-container transition-colors">Cancelar</button>
+                <button id="confirm-complete-thought-btn" class="flex-1 px-6 py-3 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all flex items-center justify-center gap-2">Completar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="assets/js/braindump.js"></script>
     <script type="module" src="assets/js/main.js"></script>
 </body>

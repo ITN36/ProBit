@@ -21,6 +21,13 @@ const deleteModalContent = document.getElementById('delete-thought-modal-content
 const cancelDeleteBtn = document.getElementById('cancel-delete-thought-btn');
 const confirmDeleteBtn = document.getElementById('confirm-delete-thought-btn');
 
+const completeModalOverlay = document.getElementById('complete-thought-modal-overlay');
+const completeModalContent = document.getElementById('complete-thought-modal-content');
+const cancelCompleteBtn = document.getElementById('cancel-complete-thought-btn');
+const confirmCompleteBtn = document.getElementById('confirm-complete-thought-btn');
+
+let currentCompleteId = null;
+
 function openModal(overlay, content) {
     if(!overlay || !content) return;
     overlay.classList.remove('hidden');
@@ -92,6 +99,30 @@ if (confirmDeleteBtn) {
         } finally {
             confirmDeleteBtn.disabled = false;
             confirmDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    });
+}
+
+if (cancelCompleteBtn) cancelCompleteBtn.addEventListener('click', () => closeModal(completeModalOverlay, completeModalContent));
+
+if (confirmCompleteBtn) {
+    confirmCompleteBtn.addEventListener('click', async () => {
+        if (!currentCompleteId) return;
+        confirmCompleteBtn.disabled = true;
+        confirmCompleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        try {
+            const card = document.getElementById(`thought-${currentCompleteId}`);
+            if (card) {
+                card.classList.add('opacity-50', 'line-through');
+            }
+            await deleteDoc(doc(db, 'usuarios', currentUser.uid, 'braindumps', currentCompleteId));
+            closeModal(completeModalOverlay, completeModalContent);
+        } catch (error) {
+            console.error("Error completing thought:", error);
+        } finally {
+            confirmCompleteBtn.disabled = false;
+            confirmCompleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
     });
 }
@@ -281,16 +312,8 @@ document.addEventListener('click', async (e) => {
     }
 
     if (completeBtn) {
-        const id = completeBtn.dataset.id;
-        // Mark as completed by adding a visual style and deleting or keeping it
-        // To keep it simple as requested: "marcarla como completada y eliminar la nota"
-        const card = document.getElementById(`thought-${id}`);
-        if (card) {
-            card.classList.add('opacity-50', 'line-through');
-            setTimeout(async () => {
-                await deleteDoc(doc(db, 'usuarios', currentUser.uid, 'braindumps', id));
-            }, 500);
-        }
+        currentCompleteId = completeBtn.dataset.id;
+        openModal(completeModalOverlay, completeModalContent);
     }
 
     if (editBtn) {
